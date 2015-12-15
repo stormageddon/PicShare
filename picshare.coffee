@@ -19,23 +19,18 @@ ws = new cloudmine.WebService({
 
 BASE_URL = "http://caputo.io/#/gallery" #"localhost:9001/#/gallery"
 
-console.log 'ws:', ws
-
 uploadScreenshot = ->
-  console.log 'uploading screenshot to CloudMine'
-  ws.upload(null, path.join(__dirname, "electron_pic.png"), {contentType: 'image/png'}).on 'success', (data)->
-    console.log 'Successfully uploaded:', data
-    url = "#{BASE_URL}/#{data.key}"
-    console.log 'url:', url
-    clipboard.writeText(url, 'selection')
-    path.exists path.join(__dirname, "electron_pic.png"), (exists)->
-      fs.unlink(path.join(__dirname, "electron_pic.png")) if exists
-    require('shell').openExternal(url)
-  .on 'error', (err)->
-    console.log 'Error uploading file:', err
-  .on 'complete', (data)->
-    console.log 'delete file here'
-
+  fs.exists path.join(__dirname, "electron_pic.png"), (exists)->
+    if exists
+      ws.upload(null, path.join(__dirname, "electron_pic.png"), {contentType: 'image/png'}).on 'success', (data)->
+        console.log 'Successfully uploaded:', data
+        url = "#{BASE_URL}/#{data.key}"
+        console.log 'url:', url
+        clipboard.writeText(url, 'selection')
+        fs.unlink(path.join(__dirname, "electron_pic.png"))
+        require('shell').openExternal(url)
+      .on 'error', (err)->
+        console.log 'Error uploading file:', err
 
 takeScreenshot = ->
   shelljs.exec("screencapture -i electron_pic.png", -> uploadScreenshot())

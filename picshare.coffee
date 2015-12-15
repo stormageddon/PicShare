@@ -23,7 +23,7 @@ console.log 'ws:', ws
 
 uploadScreenshot = ->
   console.log 'uploading screenshot to CloudMine'
-  ws.upload(null, path.join(__dirname, "electron_pic.png"), {contentType: 'png'}).on 'success', (data)->
+  ws.upload(null, path.join(__dirname, "electron_pic.png"), {contentType: 'image/png'}).on 'success', (data)->
     console.log 'Successfully uploaded:', data
     url = "#{BASE_URL}/#{data.key}"
     console.log 'url:', url

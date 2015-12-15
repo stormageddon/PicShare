@@ -29,6 +29,7 @@ uploadScreenshot = ->
     console.log 'url:', url
     clipboard.writeText(url, 'selection')
     fs.unlink(path.join(__dirname, "electron_pic.png"))
+    require('shell').openExternal(url)
   .on 'error', (err)->
     console.log 'Error uploading file:', err
   .on 'complete', (data)->

@@ -28,7 +28,8 @@ uploadScreenshot = ->
     url = "#{BASE_URL}/#{data.key}"
     console.log 'url:', url
     clipboard.writeText(url, 'selection')
-    fs.unlink(path.join(__dirname, "electron_pic.png"))
+    path.exists path.join(__dirname, "electron_pic.png"), (exists)->
+      fs.unlink(path.join(__dirname, "electron_pic.png")) if exists
     require('shell').openExternal(url)
   .on 'error', (err)->
     console.log 'Error uploading file:', err

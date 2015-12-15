@@ -17,7 +17,7 @@ ws = new cloudmine.WebService({
   apiroot: 'https://api.secure.cloudmine.me'
 })
 
-BASE_URL = "localhost:9001/#/gallery" #http://caputo.io/#/gallery
+BASE_URL = "http://caputo.io/#/gallery" #"localhost:9001/#/gallery"
 
 console.log 'ws:', ws
 

@@ -1,0 +1,16 @@
+{
+  "name": "picshare",
+  "version": "0.0.1",
+  "description": "A screen shot sharing utility similar to dropbox or CloudApp",
+  "main": "picshare.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Mike Caputo",
+  "license": "MIT",
+  "devDependencies": {
+    "cloudmine": "^0.9.14",
+    "electron-prebuilt": "^0.36.0",
+    "shelljs": "^0.5.3"
+  }
+}

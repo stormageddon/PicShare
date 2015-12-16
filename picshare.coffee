@@ -2,7 +2,7 @@ path = require('path')
 electron = require('electron')
 app = electron.app
 BrowserWindow = electron.BrowserWindow
-menu = require('menu')
+Menu = require('menu')
 Tray = electron.Tray
 globalShortcut = electron.globalShortcut
 clipboard = electron.clipboard
@@ -22,11 +22,9 @@ ws = new cloudmine.WebService({
 BASE_URL = "http://caputo.io/#/gallery" #"localhost:9001/#/gallery"
 
 uploadScreenshot = ->
-  console.log 'here'
   fs.exists path.join(tmpDir, "electron_pic.png"), (exists)->
     if exists
       ws.upload(null, path.join(tmpDir, "electron_pic.png"), {contentType: 'image/png'}).on 'success', (data)->
-        console.log 'Successfully uploaded:', data
         url = "#{BASE_URL}/#{data.key}"
         console.log 'url:', url
         clipboard.writeText(url, 'selection')
@@ -38,11 +36,23 @@ uploadScreenshot = ->
       console.log path.join(tmpDir, "electron_pic.png") + "doesnt exist"
 
 takeScreenshot = ->
-  console.log 'here'
   shelljs.exec("screencapture -i /tmp/electron_pic.png", -> uploadScreenshot())
+
+close = ->
+  app.quit()
 
 app.on 'ready', ->
   globalShortcut.register('Command+shift+5', takeScreenshot)
   app.dock.hide()
   iconPath = path.join(__dirname, 'img/cloud-icon.png')
   appIcon = new Tray(path.join(__dirname, 'img/cloud_icon.png'))
+
+  labels = [
+    {
+      label: 'Quit'
+      click: close
+    }
+  ]
+
+  menu = Menu.buildFromTemplate(labels)
+  appIcon.setContextMenu(menu)

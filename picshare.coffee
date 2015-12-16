@@ -37,6 +37,7 @@ takeScreenshot = ->
 
 app.on 'ready', ->
   globalShortcut.register('Command+shift+5', takeScreenshot)
+  app.dock.hide()
   iconPath = path.join(__dirname, 'img/cloud-icon.png')
   console.log 'icon path', iconPath
   appIcon = new Tray(path.join(__dirname, 'img/cloud_icon.png'))

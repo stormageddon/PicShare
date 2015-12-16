@@ -11,6 +11,8 @@ cloudmine = require('cloudmine')
 shelljs = require('shelljs')
 fs = require('fs')
 
+tmpDir = '/tmp'
+
 ws = new cloudmine.WebService({
   appid: '933cd5ae80cfc140244a4158c5558db3'
   apikey: 'c6ee6dcbf7e8435ab90edc90fc6c704e'
@@ -20,24 +22,27 @@ ws = new cloudmine.WebService({
 BASE_URL = "http://caputo.io/#/gallery" #"localhost:9001/#/gallery"
 
 uploadScreenshot = ->
-  fs.exists path.join(__dirname, "electron_pic.png"), (exists)->
+  console.log 'here'
+  fs.exists path.join(tmpDir, "electron_pic.png"), (exists)->
     if exists
-      ws.upload(null, path.join(__dirname, "electron_pic.png"), {contentType: 'image/png'}).on 'success', (data)->
+      ws.upload(null, path.join(tmpDir, "electron_pic.png"), {contentType: 'image/png'}).on 'success', (data)->
         console.log 'Successfully uploaded:', data
         url = "#{BASE_URL}/#{data.key}"
         console.log 'url:', url
         clipboard.writeText(url, 'selection')
-        fs.unlink(path.join(__dirname, "electron_pic.png"))
+        fs.unlink(path.join(tmpDir, "electron_pic.png"))
         require('shell').openExternal(url)
       .on 'error', (err)->
         console.log 'Error uploading file:', err
+    else
+      console.log path.join(tmpDir, "electron_pic.png") + "doesnt exist"
 
 takeScreenshot = ->
-  shelljs.exec("screencapture -i electron_pic.png", -> uploadScreenshot())
+  console.log 'here'
+  shelljs.exec("screencapture -i /tmp/electron_pic.png", -> uploadScreenshot())
 
 app.on 'ready', ->
   globalShortcut.register('Command+shift+5', takeScreenshot)
   app.dock.hide()
   iconPath = path.join(__dirname, 'img/cloud-icon.png')
-  console.log 'icon path', iconPath
   appIcon = new Tray(path.join(__dirname, 'img/cloud_icon.png'))

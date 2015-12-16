@@ -11,6 +11,8 @@
   "devDependencies": {
     "cloudmine": "^0.9.14",
     "coffee-script": "^1.10.0",
+    "electron-builder": "^2.4.0",
+    "electron-packager": "^5.1.1",
     "electron-prebuilt": "^0.36.0",
     "shelljs": "^0.5.3"
   }

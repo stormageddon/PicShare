@@ -2,3 +2,4 @@
 node_modules/*
 .cm*
 electron_pic.png
+dist/*

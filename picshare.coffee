@@ -37,7 +37,6 @@ uploadScreenshot = ->
           console.log 'error:', err
 
         fs.unlink(path.join(tmpDir, "electron_pic.png"))
-        require('shell').openExternal(url)
       .on 'error', (err)->
         console.log 'Error uploading file:', err
     else

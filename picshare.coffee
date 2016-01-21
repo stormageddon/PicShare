@@ -12,7 +12,6 @@ shelljs = require('shelljs')
 fs = require('fs')
 bitcly = require('bitcly')
 
-
 tmpDir = '/tmp'
 
 ws = new cloudmine.WebService({
@@ -30,14 +29,13 @@ uploadScreenshot = ->
         console.log 'data:', data
         url = "#{BASE_URL}/#{data.key}"
         shortUrl = "#{process.env.APIROOT}/v1/app/#{process.env.APPID}/binary/#{data.key}?apikey=#{process.env.APIKEY}"
+
         bitcly(shortUrl).then (url)->
           console.log 'short url', url
           clipboard.writeText(url)
         .catch (err)->
           console.log 'error:', err
 
-        console.log 'url:', url
-        #clipboard.writeText(url, 'selection')
         fs.unlink(path.join(tmpDir, "electron_pic.png"))
         require('shell').openExternal(url)
       .on 'error', (err)->

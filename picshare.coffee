@@ -10,13 +10,15 @@ clipboard = electron.clipboard
 cloudmine = require('cloudmine')
 shelljs = require('shelljs')
 fs = require('fs')
+bitcly = require('bitcly')
+
 
 tmpDir = '/tmp'
 
 ws = new cloudmine.WebService({
-  appid: '933cd5ae80cfc140244a4158c5558db3'
-  apikey: 'c6ee6dcbf7e8435ab90edc90fc6c704e'
-  apiroot: 'https://api.secure.cloudmine.me'
+  appid: process.env.APPID
+  apikey: process.env.APIKEY
+  apiroot: process.env.APIROOT
 })
 
 BASE_URL = "http://caputo.io/#/gallery" #"localhost:9001/#/gallery"
@@ -25,9 +27,17 @@ uploadScreenshot = ->
   fs.exists path.join(tmpDir, "electron_pic.png"), (exists)->
     if exists
       ws.upload(null, path.join(tmpDir, "electron_pic.png"), {contentType: 'image/png'}).on 'success', (data)->
+        console.log 'data:', data
         url = "#{BASE_URL}/#{data.key}"
+        shortUrl = "#{process.env.APIROOT}/v1/app/#{process.env.APPID}/binary/#{data.key}?apikey=#{process.env.APIKEY}"
+        bitcly(shortUrl).then (url)->
+          console.log 'short url', url
+          clipboard.writeText(url)
+        .catch (err)->
+          console.log 'error:', err
+
         console.log 'url:', url
-        clipboard.writeText(url, 'selection')
+        #clipboard.writeText(url, 'selection')
         fs.unlink(path.join(tmpDir, "electron_pic.png"))
         require('shell').openExternal(url)
       .on 'error', (err)->

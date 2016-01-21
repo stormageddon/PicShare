@@ -15,5 +15,8 @@
     "electron-packager": "^5.1.1",
     "electron-prebuilt": "^0.36.0",
     "shelljs": "^0.5.3"
+  },
+  "dependencies": {
+    "bitcly": "^1.1.1"
   }
 }

@@ -2,7 +2,7 @@ path = require('path')
 electron = require('electron')
 app = electron.app
 BrowserWindow = electron.BrowserWindow
-menubar = require('menubar')({ dir: __dirname, icon: path.join(__dirname, 'dist/PicShare-darwin-x64/PicShare.app/Contents/Resources/app/img/cloud_icon.png') })
+menubar = require('menubar')({ dir: __dirname, icon: path.join(__dirname, 'dist/PicShare-darwin-x64/PicShare.app/Contents/Resources/app/img/cloud_icon.png'), 'min-width': 200 })
 Tray = electron.Tray
 globalShortcut = electron.globalShortcut
 clipboard = electron.clipboard
@@ -97,7 +97,6 @@ menubar.on('after-create-window', ->
   if menubar?.window?.webContents?
     menubar.window.webContents.on 'did-finish-load', ->
       console.log 'sending web contents:'
-      #menubar.window.webContents.send('pictures', lastImages)
       sendContent(menubar.window)
     menubar.window.webContents.on 'new-window', (e, url)->
       e.preventDefault()

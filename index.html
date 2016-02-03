@@ -1,13 +1,16 @@
 <html>
   <head>
   </head>
-  <body>
-    <div class="header">
-      <h1>PicShare</h1>
-      <span width="100%">
-      <button onclick="exit();">Quit</button>
-    </div>
-    <hr>
+  <body style="margin: 0px;">
+    <section class="header" style="width: 100%; height: 50px; background: #F5F5F5; padding-left: 8px; border-bottom: 1px solid #E5E5E5;">
+      <div id="brand" style="float: left; height: 50px; width: 15%; margin-top: -8px;">
+	<h1 style="vertical-align: top;">PicShare</h1>
+      </div>
+      <div id="actions" style="float: right; height: 50px; width: 15%; margin-right: 16px; margin-top: 8px;">
+	<button style="float: right;" onclick="exit();">Quit</button>
+      </div>
+    </section>
+
     <div class="content">
       <ul class="photoList" id="photoList">
       </ul>

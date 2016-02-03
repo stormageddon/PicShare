@@ -62,7 +62,8 @@ takeScreenshot = ->
     uploadScreenshot()
     console.log 'lastImages after screenshot:', lastImages
     fetchLastImages()
-    menubar.window.webContents.send('pictures', lastImages) if menubar?.window?.webContents
+    #menubar.window.webContents.send('pictures', {images: lastImages, root: process.env.APIROOT, apikey: process.env.APIKEY, appid: process.env.APPID}) if menubar?.window?.webContents
+    sendContent(menubar.window)
 
 
 lastImages = {}
@@ -85,17 +86,27 @@ menubar.on 'show', ->
   fetchLastImages()
   console.log 'Showing menubar!'
   console.log '!', lastImages
-  menubar.window.webContents.send('pictures', lastImages) if menubar?.window?.webContents
+  sendContent(menubar.window)
 
+sendContent = (window)->
+  window.webContents.send('pictures', {images: lastImages, root: process.env.APIROOT, apikey: process.env.APIKEY, appid: process.env.APPID}) if window?.webContents
 
 
 menubar.on('after-create-window', ->
   #menubar.window.openDevTools()
-  if menubar?.window?.webContents
+  if menubar?.window?.webContents?
     menubar.window.webContents.on 'did-finish-load', ->
       console.log 'sending web contents:'
-      menubar.window.webContents.send('pictures', lastImages)
+      #menubar.window.webContents.send('pictures', lastImages)
+      sendContent(menubar.window)
+    menubar.window.webContents.on 'new-window', (e, url)->
+      e.preventDefault()
+      require('shell').openExternal(url)
 )
+
+require('ipc').on 'exit', (event, shouldExit)->
+  console.log 'should exit', shouldExit
+  menubar.app.quit() if shouldExit
 
 menubar.on 'ready', ->
   globalShortcut.register('Command+shift+5', takeScreenshot)

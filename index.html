@@ -4,6 +4,8 @@
   <body>
     <div class="header">
       <h1>PicShare</h1>
+      <span width="100%">
+      <button onclick="exit();">Quit</button>
     </div>
     <hr>
     <div class="content">
@@ -12,10 +14,19 @@
     </div>
 
     <script>
-      require('ipc').on('pictures', function(message) {
+      var ipc = require('ipc');
+      var exit = function() {
+        ipc.send('exit', true);
+      }
+      
+      ipc.on('pictures', function(message) {
         photoHTML = ""
-        for(var i = 0; i < message.length; i++) {
-          photoHTML += "<li>" + message[i].filename + "</li>";
+        for(var i = 0; i < message.images.length; i++) {
+	   photoHTML += "<li>";
+	   photoHTML += "<a href='" + message.root + "/v1/app/" + message.appid + "/binary/" + message.images[i].filename + "?apikey=" + message.apikey + "' target=_blank>"
+	   photoHTML += message.images[i].filename;
+           photoHTML += "</a>"
+	   photoHTML += "</li>";
         }
         document.getElementById("photoList").innerHTML = photoHTML
         console.log('message:' + message);

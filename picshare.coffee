@@ -6,6 +6,7 @@ Menu = require('menu')
 Tray = electron.Tray
 globalShortcut = electron.globalShortcut
 clipboard = electron.clipboard
+notifier = require('node-notifier')
 
 cloudmine = require('cloudmine')
 shelljs = require('shelljs')
@@ -33,6 +34,11 @@ uploadScreenshot = ->
         bitcly(shortUrl).then (url)->
           console.log 'short url', url
           clipboard.writeText(url)
+          notifier.notify({
+            title: 'Your link is available for sharing!'
+            message: 'Use \u2318+v to send it!'
+            sender: 'com.github.electron'
+          })
         .catch (err)->
           console.log 'error:', err
 

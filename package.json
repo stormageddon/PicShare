@@ -17,6 +17,7 @@
     "shelljs": "^0.5.3"
   },
   "dependencies": {
-    "bitcly": "^1.1.1"
+    "bitcly": "^1.1.1",
+    "node-notifier": "^4.4.0"
   }
 }

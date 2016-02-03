@@ -1,21 +1,23 @@
 <html>
   <head>
+    <link rel="stylesheet" type="text/css" href="index.css" />
   </head>
-  <body style="margin: 0px;">
-    <section class="header" style="width: 100%; height: 50px; background: #F5F5F5; padding-left: 8px; border-bottom: 1px solid #E5E5E5;">
-      <div id="brand" style="float: left; height: 50px; width: 15%; margin-top: -8px;">
+  <body>
+    <section class="header">
+      <div id="brand">
 	<h1 style="vertical-align: top;">PicShare</h1>
       </div>
-      <div id="actions" style="float: right; height: 50px; width: 15%; margin-right: 16px; margin-top: 8px;">
-	<button style="float: right;" onclick="exit();">Quit</button>
+      <div id="actions">
+	<button id="quit-button" onclick="exit();">Quit</button>
       </div>
     </section>
 
     <div class="content">
-      <ul class="photoList" id="photoList">
+      <ul class="photo-list" id="photoList">
       </ul>
     </div>
 
+    <script type="text/javascript" src="moment.js"></script>
     <script>
       var ipc = require('ipc');
       var exit = function() {
@@ -25,10 +27,14 @@
       ipc.on('pictures', function(message) {
         photoHTML = ""
         for(var i = 0; i < message.images.length; i++) {
-	   photoHTML += "<li>";
+	   photoHTML += "<li class='table-row'>";
+	   photoHTML += "<img class='thumbnail' src='" + message.root + "/v1/app/" + message.appid + "/binary/" + message.images[i].filename + "?apikey=" + message.apikey + "' />"
 	   photoHTML += "<a href='" + message.root + "/v1/app/" + message.appid + "/binary/" + message.images[i].filename + "?apikey=" + message.apikey + "' target=_blank>"
 	   photoHTML += message.images[i].filename;
-           photoHTML += "</a>"
+	   photoHTML += "</a><br>"
+	   photoHTML += "<p class='date-added'>added "
+           photoHTML += moment(message.images[i]['__created__']).from(moment())
+           photoHTML += "</p>"
 	   photoHTML += "</li>";
         }
         document.getElementById("photoList").innerHTML = photoHTML

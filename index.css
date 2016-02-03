@@ -1,0 +1,67 @@
+body {
+    margin: 0px;
+    padding: 0px;
+}
+
+
+.header {
+    width: 100%;
+    height: 50px;
+    background: #F5F5F5;
+    padding-left: 8px;
+    border-bottom: 1px solid #E5E5E5;
+    position: fixed;
+    margin-top: 0px !important;
+}
+
+#brand {
+    float: left;
+    height: 50px;
+    width: 15%;
+    margin-top: -8px;
+}
+
+#actions {
+    float: right;
+    height: 50px;
+    width: 15%;
+    margin-right: 16px;
+    margin-top: 8px;
+}
+
+#quit-button {
+    float: right;
+}
+
+.photo-list {
+    width: 100%;
+    list-style: none;
+    padding-left: 0px;
+    padding-right: 0px;
+    padding-top: 50px;
+}
+
+.content {
+    padding: 0px;
+}
+
+.table-row {
+    font: 400 12px/1.5 "Open Sans", sans-serif;
+    background: #fff;
+    border-bottom: 1px solid #E5E5E5;
+    padding: 16px;
+    padding-bottom: 8px;
+    width: 100%;
+}
+
+.table-row p {
+    color: #C5C5C5;
+}
+
+.table-row a {
+    padding-left: 8px;
+}
+
+.thumbnail {
+    width: 70px;
+}

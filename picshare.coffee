@@ -15,6 +15,8 @@ bitcly = require('bitcly')
 
 tmpDir = '/tmp'
 
+NUM_LAST_IMAGES = 10
+
 ws = new cloudmine.WebService({
   appid: process.env.APPID
   apikey: process.env.APIKEY
@@ -69,7 +71,7 @@ takeScreenshot = ->
 lastImages = {}
 
 fetchLastImages = ->
-  ws.searchFiles('[content_type = "image/png"]', {limit: 5, sort: '__created__:desc'}).on('success', (results)->
+  ws.searchFiles('[content_type = "image/png"]', {limit: NUM_LAST_IMAGES, sort: '__created__:desc'}).on('success', (results)->
     console.log 'results:', results
     lastImages = (val for key, val of results) #convert to array
   ).on 'error', (err)->

@@ -2,7 +2,7 @@ path = require('path')
 electron = require('electron')
 app = electron.app
 BrowserWindow = electron.BrowserWindow
-Menu = require('menu')
+menubar = require('menubar')({ dir: __dirname, icon: path.join(__dirname, 'dist/PicShare-darwin-x64/PicShare.app/Contents/Resources/app/img/cloud_icon.png') })
 Tray = electron.Tray
 globalShortcut = electron.globalShortcut
 clipboard = electron.clipboard
@@ -26,7 +26,16 @@ BASE_URL = "http://caputo.io/#/gallery" #"localhost:9001/#/gallery"
 uploadScreenshot = ->
   fs.exists path.join(tmpDir, "electron_pic.png"), (exists)->
     if exists
-      ws.upload(null, path.join(tmpDir, "electron_pic.png"), {contentType: 'image/png'}).on 'success', (data)->
+      currDate = new Date()
+      day = currDate.getDate()
+      month = currDate.getMonth() + 1
+      year = currDate.getFullYear()
+      hour = currDate.getHours()
+      minutes = currDate.getMinutes()
+      seconds = currDate.getSeconds()
+      fileName = "screenshot-#{year}-#{month}-#{day}_at_#{hour}_#{minutes}_#{seconds}"
+      console.log fileName
+      ws.upload(fileName, path.join(tmpDir, "electron_pic.png"), {contentType: 'image/png'}).on 'success', (data)->
         console.log 'data:', data
         url = "#{BASE_URL}/#{data.key}"
         shortUrl = "#{process.env.APIROOT}/v1/app/#{process.env.APPID}/binary/#{data.key}?apikey=#{process.env.APIKEY}"
@@ -49,23 +58,47 @@ uploadScreenshot = ->
       console.log path.join(tmpDir, "electron_pic.png") + "doesnt exist"
 
 takeScreenshot = ->
-  shelljs.exec("screencapture -i /tmp/electron_pic.png", -> uploadScreenshot())
+  shelljs.exec "screencapture -i /tmp/electron_pic.png", ->
+    uploadScreenshot()
+    console.log 'lastImages after screenshot:', lastImages
+    fetchLastImages()
+    menubar.window.webContents.send('pictures', lastImages) if menubar?.window?.webContents
+
+
+lastImages = {}
+
+fetchLastImages = ->
+  ws.searchFiles('[content_type = "image/png"]', {limit: 5, sort: '__created__:desc'}).on('success', (results)->
+    console.log 'results:', results
+    lastImages = (val for key, val of results) #convert to array
+  ).on 'error', (err)->
+    console.log 'error fetching previous images', err
 
 close = ->
   app.quit()
 
-app.on 'ready', ->
+fetchLastImages()
+
+ipcRenderer = require('electron').ipcRenderer;
+
+menubar.on 'show', ->
+  fetchLastImages()
+  console.log 'Showing menubar!'
+  console.log '!', lastImages
+  menubar.window.webContents.send('pictures', lastImages) if menubar?.window?.webContents
+
+
+
+menubar.on('after-create-window', ->
+  #menubar.window.openDevTools()
+  if menubar?.window?.webContents
+    menubar.window.webContents.on 'did-finish-load', ->
+      console.log 'sending web contents:'
+      menubar.window.webContents.send('pictures', lastImages)
+)
+
+menubar.on 'ready', ->
   globalShortcut.register('Command+shift+5', takeScreenshot)
-  app.dock.hide()
-  iconPath = path.join(__dirname, 'img/cloud-icon.png')
-  appIcon = new Tray(path.join(__dirname, 'img/cloud_icon.png'))
+  console.log 'app is ready'
 
-  labels = [
-    {
-      label: 'Quit'
-      click: close
-    }
-  ]
-
-  menu = Menu.buildFromTemplate(labels)
-  appIcon.setContextMenu(menu)
+  this

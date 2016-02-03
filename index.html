@@ -2,6 +2,24 @@
   <head>
   </head>
   <body>
-    <h1>Hello, world!</h1>
+    <div class="header">
+      <h1>PicShare</h1>
+    </div>
+    <hr>
+    <div class="content">
+      <ul class="photoList" id="photoList">
+      </ul>
+    </div>
+
+    <script>
+      require('ipc').on('pictures', function(message) {
+        photoHTML = ""
+        for(var i = 0; i < message.length; i++) {
+          photoHTML += "<li>" + message[i].filename + "</li>";
+        }
+        document.getElementById("photoList").innerHTML = photoHTML
+        console.log('message:' + message);
+      });
+    </script>
   </body>
 </html>

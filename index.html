@@ -1,14 +1,15 @@
 <html>
   <head>
-    <link rel="stylesheet" type="text/css" href="index.css" />
+    <link rel="stylesheet" type="text/css" href="index.css"></link>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"></link>
   </head>
   <body>
     <section class="header">
       <div id="brand">
-	<h1 style="vertical-align: top;">PicShare</h1>
+        <h1 style="vertical-align: top;">PicShare</h1>
       </div>
       <div id="actions">
-	<button id="quit-button" onclick="exit();">Quit</button>
+        <button id="quit-button" onclick="exit();">Quit</button>
       </div>
     </section>
 
@@ -23,21 +24,26 @@
       var exit = function() {
         ipc.send('exit', true);
       }
+
+      var copy = function(url) {
+        ipc.send('copy', url);
+      }
       
       ipc.on('pictures', function(message) {
-        photoHTML = ""
+        var photoHTML = "";
         for(var i = 0; i < message.images.length; i++) {
-	   photoHTML += "<li class='table-row'>";
-	   photoHTML += "<img class='thumbnail' src='" + message.root + "/v1/app/" + message.appid + "/binary/" + message.images[i].filename + "?apikey=" + message.apikey + "' />"
-	   photoHTML += "<a href='" + message.root + "/v1/app/" + message.appid + "/binary/" + message.images[i].filename + "?apikey=" + message.apikey + "' target=_blank>"
-	   photoHTML += message.images[i].filename;
-	   photoHTML += "</a><br>"
-	   photoHTML += "<p class='date-added'>added "
-           photoHTML += moment(message.images[i]['__created__']).from(moment())
-           photoHTML += "</p>"
-	   photoHTML += "</li>";
+          var link = message.root + "/v1/app/" + message.appid + "/binary/" + message.images[i].filename + "?apikey=" + message.apikey;
+          photoHTML += "<li class='table-row'>";
+          photoHTML += "<img class='thumbnail' src='" + message.root + "/v1/app/" + message.appid + "/binary/" + message.images[i].filename + "?apikey=" + message.apikey + "' />";
+          photoHTML += "<a href='" + message.root + "/v1/app/" + message.appid + "/binary/" + message.images[i].filename + "?apikey=" + message.apikey + "' target=_blank>";
+          photoHTML += message.images[i].filename;
+          photoHTML += "</a></br>";
+          photoHTML += "<p class='date-added'>added ";
+          photoHTML += moment(message.images[i]['__created__']).from(moment());
+          photoHTML += "</p>";
+          photoHTML += "</li>";
         }
-        document.getElementById("photoList").innerHTML = photoHTML
+        document.getElementById("photoList").innerHTML = photoHTML;
         console.log('message:' + message);
       });
     </script>

@@ -19,6 +19,7 @@
   "dependencies": {
     "bitcly": "^1.1.1",
     "menubar": "^3.0.0",
-    "node-notifier": "^4.4.0"
+    "node-notifier": "^4.4.0",
+    "q": "^1.4.1"
   }
 }

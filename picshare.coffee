@@ -8,60 +8,60 @@ globalShortcut = electron.globalShortcut
 clipboard = electron.clipboard
 notifier = require('node-notifier')
 q = require('q')
-cloudmine = require('cloudmine')
 shelljs = require('shelljs')
 fs = require('fs')
 bitcly = require('bitcly')
-
+File = require('./file.js')
 tmpDir = '/tmp'
+Upload = require('./upload.js')
 
-NUM_LAST_IMAGES = 10
-
-ws = new cloudmine.WebService({
-  appid: process.env.APPID
-  apikey: process.env.APIKEY
-  apiroot: process.env.APIROOT
+uploader = new Upload({
+  appId: process.env.APPID
+  apiKey: process.env.APIKEY
+  apiRoot: process.env.APIROOT
 })
+
+console.log 'uploader:', uploader
 
 BASE_URL = "http://caputo.io/#/gallery" #"localhost:9001/#/gallery"
 
 uploadScreenshot = ->
   fs.exists path.join(tmpDir, "electron_pic.png"), (exists)->
     if exists
-      currDate = new Date()
-      day = currDate.getDate()
-      month = currDate.getMonth() + 1
-      year = currDate.getFullYear()
-      hour = currDate.getHours()
-      minutes = currDate.getMinutes()
-      seconds = currDate.getSeconds()
-      fileName = "screenshot-#{year}-#{month}-#{day}_at_#{hour}_#{minutes}_#{seconds}"
-      ws.upload(fileName, path.join(tmpDir, "electron_pic.png"), {contentType: 'image/png'}).on 'success', (data)->
+
+      file = new File({
+        path: path.join(tmpDir, "electron_pic.png")
+      })
+
+      console.log 'the file: ', file
+      console.log 'uploader:', uploader
+
+      uploader.upload(file).then (data)->
         url = "#{BASE_URL}/#{data.key}"
-        shortUrl = "#{process.env.APIROOT}/v1/app/#{process.env.APPID}/binary/#{data.key}?apikey=#{process.env.APIKEY}"
+        file.url = "#{process.env.APIROOT}/v1/app/#{process.env.APPID}/binary/#{data.key}?apikey=#{process.env.APIKEY}"
 
-        getShortUrl(shortUrl).then (shortenedUrl)->
+        getShortUrl(file.url).then (shortenedUrl)->
+          console.log 'file url:', file.url
           clipboard.writeText(shortenedUrl)
+          file.shortUrl = shortenedUrl
 
-          notifier.notify({
-            title: 'Your link is available for sharing!'
-            message: 'Use \u2318+v to send it!'
-            sender: 'com.github.electron'
-          })
+          notify('Your link is available for sharing!', 'Use \u2318+v to send it!')
+
         .catch (err)->
-          notifier.notify({
-            title: "Something's gone wrong"
-            message: 'There was an error processing your request'
-            sender: 'com.github.electron'
-          })
+          notify("Something's gone wrong", 'There was an error processing your request')
           console.log 'err', err
 
-
         fs.unlink(path.join(tmpDir, "electron_pic.png"))
-      .on 'error', (err)->
-        console.log 'Error uploading file:', err
+
     else
       console.log path.join(tmpDir, "electron_pic.png") + "doesnt exist"
+
+notify = (title, message)->
+  notifier.notify({
+    title: title
+    message: message
+    sender: 'com.github.electron'
+  })
 
 takeScreenshot = ->
   shelljs.exec "screencapture -i /tmp/electron_pic.png", ->
@@ -72,9 +72,9 @@ takeScreenshot = ->
 lastImages = {}
 
 fetchLastImages = ->
-  ws.searchFiles('[content_type = "image/png"]', {limit: NUM_LAST_IMAGES, sort: '__created__:desc'}).on('success', (results)->
-    lastImages = (val for key, val of results) #convert to array
-  ).on 'error', (err)->
+  uploader.getRecentFiles().then (files)->
+    lastImages = files
+  .catch (err)->
     console.log 'error fetching previous images', err
 
 close = ->

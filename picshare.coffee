@@ -82,8 +82,6 @@ close = ->
 
 fetchLastImages()
 
-#ipcRenderer = require('electron').ipcRenderer;
-
 menubar.on 'show', ->
   fetchLastImages()
   sendContent(menubar.window)

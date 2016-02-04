@@ -20,7 +20,7 @@
 
     <script type="text/javascript" src="moment.js"></script>
     <script>
-      var ipc = require('ipc');
+      var ipc = require('electron').ipcRenderer;
       var exit = function() {
         ipc.send('exit', true);
       }
@@ -29,7 +29,7 @@
         ipc.send('copy', url);
       }
       
-      ipc.on('pictures', function(message) {
+      ipc.on('pictures', function(event, message) {
         var photoHTML = "";
         for(var i = 0; i < message.images.length; i++) {
           var link = message.root + "/v1/app/" + message.appid + "/binary/" + message.images[i].filename + "?apikey=" + message.apikey;

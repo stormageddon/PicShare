@@ -82,7 +82,7 @@ close = ->
 
 fetchLastImages()
 
-ipcRenderer = require('electron').ipcRenderer;
+#ipcRenderer = require('electron').ipcRenderer;
 
 menubar.on 'show', ->
   fetchLastImages()
@@ -93,7 +93,7 @@ sendContent = (window)->
 
 
 menubar.on('after-create-window', ->
-  menubar.window.openDevTools()
+  #menubar.window.openDevTools()
   if menubar?.window?.webContents?
     menubar.window.webContents.on 'did-finish-load', ->
       sendContent(menubar.window)
@@ -110,7 +110,7 @@ getShortUrl = (url)->
     console.log 'error:', err
     q.reject(err)
 
-require('ipc').on 'exit', (event, shouldExit)->
+require('electron').ipcMain.on 'exit', (event, shouldExit)->
   menubar.app.quit() if shouldExit
 .on 'copy', (event, url)->
   getShortUrl(url).then (shortenedUrl)->

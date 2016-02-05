@@ -32,10 +32,10 @@
       ipc.on('pictures', function(event, message) {
         var photoHTML = "";
         for(var i = 0; i < message.images.length; i++) {
-          var link = message.root + "/v1/app/" + message.appid + "/binary/" + message.images[i].filename + "?apikey=" + message.apikey;
+          var link = message.root + "/v1/app/" + message.appid + "/user/binary/" + message.images[i].filename + "?apikey=" + message.apikey + "&shared=true";
           photoHTML += "<li class='table-row'>";
-          photoHTML += "<img class='thumbnail' src='" + message.root + "/v1/app/" + message.appid + "/binary/" + message.images[i].filename + "?apikey=" + message.apikey + "' />";
-          photoHTML += "<a href='" + message.root + "/v1/app/" + message.appid + "/binary/" + message.images[i].filename + "?apikey=" + message.apikey + "' target=_blank>";
+          photoHTML += "<img class='thumbnail' src='" + link + "' />";
+          photoHTML += "<a href='" + link + "' target=_blank>";
           photoHTML += message.images[i].filename;
           photoHTML += "</a></br>";
           photoHTML += "<p class='date-added'>added ";

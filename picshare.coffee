@@ -14,12 +14,18 @@ bitcly = require('bitcly')
 File = require('./file.js')
 tmpDir = '/tmp'
 Upload = require('./upload.js')
+User = require('./user.js')
+CURRENT_USER = null
+
 
 uploader = new Upload({
   appId: process.env.APPID
   apiKey: process.env.APIKEY
   apiRoot: process.env.APIROOT
 })
+
+uploader.login('mcaputo@cloudmine.me', 'password').then (data)->
+  CURRENT_USER = new User(email: 'mcaputo@cloudmine.me', password: 'password', sessionToken: data.session_token)
 
 console.log 'uploader:', uploader
 
@@ -33,25 +39,26 @@ uploadScreenshot = ->
         path: path.join(tmpDir, "electron_pic.png")
       })
 
-      console.log 'the file: ', file
-      console.log 'uploader:', uploader
+      uploader.upload(file, CURRENT_USER) # return promise
+      .then (file)->
+        uploader.addACL(file, '11ab5e807eda448caa0870494301fc1b').then (result)->
+          console.log 'result', result
+          url = "#{BASE_URL}/#{file.key}"
+          file.url = "#{process.env.APIROOT}/v1/app/#{process.env.APPID}/user/binary/#{file.key}?apikey=#{process.env.APIKEY}&shared=true"
+          console.log 'file block', file
 
-      uploader.upload(file).then (data)->
-        url = "#{BASE_URL}/#{data.key}"
-        file.url = "#{process.env.APIROOT}/v1/app/#{process.env.APPID}/binary/#{data.key}?apikey=#{process.env.APIKEY}"
+          getShortUrl(file.url).then (shortenedUrl)->
+            console.log 'file url:', file.url
+            clipboard.writeText(shortenedUrl)
+            file.shortUrl = shortenedUrl
 
-        getShortUrl(file.url).then (shortenedUrl)->
-          console.log 'file url:', file.url
-          clipboard.writeText(shortenedUrl)
-          file.shortUrl = shortenedUrl
+            notify('Your link is available for sharing!', 'Use \u2318+v to send it!')
 
-          notify('Your link is available for sharing!', 'Use \u2318+v to send it!')
+          .catch (err)->
+            notify("Something's gone wrong", 'There was an error processing your request')
+            console.log 'err', err
 
-        .catch (err)->
-          notify("Something's gone wrong", 'There was an error processing your request')
-          console.log 'err', err
-
-        fs.unlink(path.join(tmpDir, "electron_pic.png"))
+          fs.unlink(path.join(tmpDir, "electron_pic.png"))
 
     else
       console.log path.join(tmpDir, "electron_pic.png") + "doesnt exist"

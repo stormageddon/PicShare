@@ -11,6 +11,7 @@ class File
     @created = opts['__created__']
     @_isNew = yes unless @name and @created
     @defaults() if @_isNew
+    this
 
   defaults: ->
     @name = @generateName()

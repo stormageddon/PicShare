@@ -27,8 +27,6 @@ uploader = new Upload({
 uploader.login('mcaputo@cloudmine.me', 'password').then (data)->
   CURRENT_USER = new User(email: 'mcaputo@cloudmine.me', password: 'password', sessionToken: data.session_token)
 
-console.log 'uploader:', uploader
-
 BASE_URL = "http://caputo.io/#/gallery" #"localhost:9001/#/gallery"
 
 uploadScreenshot = ->
@@ -41,14 +39,11 @@ uploadScreenshot = ->
 
       uploader.upload(file, CURRENT_USER) # return promise
       .then (file)->
-        uploader.addACL(file, '11ab5e807eda448caa0870494301fc1b').then (result)->
-          console.log 'result', result
+        uploader.addACL(file, CURRENT_USER).then (result)->
           url = "#{BASE_URL}/#{file.key}"
           file.url = "#{process.env.APIROOT}/v1/app/#{process.env.APPID}/user/binary/#{file.key}?apikey=#{process.env.APIKEY}&shared=true"
-          console.log 'file block', file
 
           getShortUrl(file.url).then (shortenedUrl)->
-            console.log 'file url:', file.url
             clipboard.writeText(shortenedUrl)
             file.shortUrl = shortenedUrl
 
@@ -59,6 +54,8 @@ uploadScreenshot = ->
             console.log 'err', err
 
           fs.unlink(path.join(tmpDir, "electron_pic.png"))
+        .catch (err)->
+          console.log 'an error:', err
 
     else
       console.log path.join(tmpDir, "electron_pic.png") + "doesnt exist"
@@ -124,6 +121,5 @@ require('electron').ipcMain.on 'exit', (event, shouldExit)->
 
 menubar.on 'ready', ->
   globalShortcut.register('Command+shift+5', takeScreenshot)
-  console.log 'app is ready'
 
   this

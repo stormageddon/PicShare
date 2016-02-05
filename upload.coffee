@@ -27,11 +27,8 @@ class Upload
   upload: (file, user)->
     deferred = q.defer()
     opts = {contentType: file.contentType}
-    console.log 'current user:', user
     opts['session_token'] = user?.sessionToken if not user?.sessionToken
-    console.log
     @__ws.upload(file.name, file.path, {contentType: file.contentType, apikey: process.env.CREATE_KEY}).on 'success', (data)->
-      console.log 'uploaded!', data
       deferred.resolve(data)
     .on 'error', (err)->
       console.log 'error uploading:', err
@@ -40,12 +37,20 @@ class Upload
 
 
 
-  addACL: (file, aclId)->
-    console.log 'the file:', file
+  addACL: (file, user)->
     deferred = q.defer()
-    @__ws.update(file.key, {'__access__': [aclId]}).on 'success', (data)->
-      deferred.resolve(data)
+    @__ws.api('/access', {session_token: user.sessionToken, app_level: no}).on 'success', (data)=>
+      aclLists = (key for key, val of data)
+
+      ## First check if user has an ACL. A user should only have 1 ACL
+      deferred.reject('More than 1 ACL found') if aclLists.length > 1
+
+      @__ws.update(file.key, {'__access__': [aclLists[0]]}).on 'success', (data)->
+        deferred.resolve(data)
+      .on 'error', (err)->
+        deferred.reject(err)
     .on 'error', (err)->
+      console.log 'err:', err
       deferred.reject(err)
     deferred.promise
 

@@ -24,8 +24,21 @@ uploader = new Upload({
   apiRoot: process.env.APIROOT
 })
 
-uploader.login('mcaputo@cloudmine.me', 'password').then (data)->
-  CURRENT_USER = new User(email: 'mcaputo@cloudmine.me', password: 'password', sessionToken: data.session_token)
+uploader.login('test@test.com', 'testing')
+  .then (data)->
+    CURRENT_USER = new User(email: data.email, password: data.password, sessionToken: data.sessionToken)
+    # Fetch ACLs
+    uploader.getAllACLs(data.sessionToken).then (acls)=>
+      if acls.length < 1
+        uploader.createACL(CURRENT_USER.sessionToken).then (ids)->
+          CURRENT_USER.sharedACL = ids[0]
+      else
+        CURRENT_USER.sharedACL = acls[0]
+        console.log 'CURRENT_USER:', CURRENT_USER
+
+  .catch (err)->
+    console.log 'Error logging in and fetching ACLs:', err
+
 
 BASE_URL = "http://caputo.io/#/gallery" #"localhost:9001/#/gallery"
 
@@ -55,7 +68,7 @@ uploadScreenshot = ->
 
           fs.unlink(path.join(tmpDir, "electron_pic.png"))
         .catch (err)->
-          console.log 'an error:', err
+          console.log 'failed to get an acl:', err
 
     else
       console.log path.join(tmpDir, "electron_pic.png") + "doesnt exist"

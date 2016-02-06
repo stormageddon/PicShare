@@ -36,21 +36,38 @@ class Upload
     deferred.promise
 
 
+  createACL: (sessionToken)->
+    deferred = q.defer()
+    deferred.reject("Invalid session token") if not sessionToken
+
+    @__ws.updateACL({members: [], permissions: ['r'], segments: { public: true, logged_in: false }}).on 'success', (response)->
+      console.log 'created ACL', response
+      ids = (key for key, val of response)
+      deferred.resolve(ids)
+    .on 'error', (err)->
+      deferred.reject(err)
+
+    deferred.promise
+
+  getAllACLs: (sessionToken)->
+    deferred = q.defer()
+    @__ws.api('/access', {session_token: sessionToken, app_level: no}).on 'success', (data)->
+      console.log 'data', data
+      ids = (key for key, val of data)
+      console.log 'fetched acl ids:', ids
+      deferred.reject('User has more than 1 acl') if ids.length > 1
+      deferred.resolve(ids)
+    .on 'error', (err)->
+      deferred.reject(err)
+
+    deferred.promise
 
   addACL: (file, user)->
     deferred = q.defer()
-    @__ws.api('/access', {session_token: user.sessionToken, app_level: no}).on 'success', (data)=>
-      aclLists = (key for key, val of data)
-
-      ## First check if user has an ACL. A user should only have 1 ACL
-      deferred.reject('More than 1 ACL found') if aclLists.length > 1
-
-      @__ws.update(file.key, {'__access__': [aclLists[0]]}).on 'success', (data)->
-        deferred.resolve(data)
-      .on 'error', (err)->
-        deferred.reject(err)
+    console.log 'user', user
+    @__ws.update(file.key, {'__access__': [user.sharedACL]}).on 'success', (data)->
+      deferred.resolve(data)
     .on 'error', (err)->
-      console.log 'err:', err
       deferred.reject(err)
     deferred.promise
 
@@ -81,7 +98,9 @@ class Upload
   login: (email, password)->
     deferred = q.defer()
     @__ws.login({email: email, password: password}).on 'success', (data)->
-      deferred.resolve(data)
+      console.log 'logged in?', data
+      console.log 'info:', email, password
+      deferred.resolve({email: email, password: password, sessionToken: data.session_token})
     .on 'error', (err)->
       deferred.reject(err)
     deferred.promise

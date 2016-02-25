@@ -3,7 +3,7 @@
     <link rel="stylesheet" type="text/css" href="index.css"></link>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"></link>
   </head>
-  <body>
+  <body style="background: #F5F5F5;">
     <section class="header">
       <div id="brand">
         <h1 style="vertical-align: top;">PicShare</h1>
@@ -11,12 +11,22 @@
       <div id="actions">
         <button id="quit-button" onclick="exit();">Quit</button>
       </div>
+    <span style="height: 100%">
+    <div style="height: 35px; width: 100%; background: #F5F5F5; margin-top: 365px; margin-left: -8px;">
+      <div id="brand" width="100%" style="text-align: center;">
+	<p id="version" style="font-family: 'courier new'; color: #595959; margin-left: 150px;"> v0.0.0 </p>
+      </div>
+    </div>
+    
     </section>
-
-    <div class="content">
+    
+    
+    <div class="content" style="padding-bottom: 20px;">
       <ul class="photo-list" id="photoList">
       </ul>
     </div>
+
+
 
     <script type="text/javascript" src="moment.js"></script>
     <script>
@@ -44,6 +54,7 @@
           photoHTML += "</li>";
         }
         document.getElementById("photoList").innerHTML = photoHTML;
+        document.getElementById("version").innerHTML = "v" + message.version;
         console.log('message:' + message);
       });
     </script>

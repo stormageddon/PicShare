@@ -1,8 +1,9 @@
+pkg = require('./package.json')
 path = require('path')
 electron = require('electron')
 app = electron.app
 BrowserWindow = electron.BrowserWindow
-menubar = require('menubar')({ dir: __dirname, icon: path.join(__dirname, 'dist/PicShare-darwin-x64/PicShare.app/Contents/Resources/app/img/cloud_icon.png'), 'min-width': 200 })
+menubar = require('menubar')({ dir: __dirname, index: 'file://' + path.join(__dirname, 'dist/PicShare-darwin-x64/PicShare.app/Contents/Resources/app/login.html'), icon: path.join(__dirname, 'dist/PicShare-darwin-x64/PicShare.app/Contents/Resources/app/img/cloud_icon.png'), 'min-width': 200 })
 Tray = electron.Tray
 globalShortcut = electron.globalShortcut
 clipboard = electron.clipboard
@@ -24,20 +25,35 @@ uploader = new Upload({
   apiRoot: process.env.APIROOT
 })
 
-uploader.login('test@test.com', 'testing')
-  .then (data)->
-    CURRENT_USER = new User(email: data.email, password: data.password, sessionToken: data.sessionToken)
-    # Fetch ACLs
-    uploader.getAllACLs(data.sessionToken).then (acls)=>
-      if acls.length < 1
-        uploader.createACL(CURRENT_USER.sessionToken).then (ids)->
-          CURRENT_USER.sharedACL = ids[0]
-      else
-        CURRENT_USER.sharedACL = acls[0]
-        console.log 'CURRENT_USER:', CURRENT_USER
+init = ->
+  console.log 'initing'
 
-  .catch (err)->
-    console.log 'Error logging in and fetching ACLs:', err
+
+login = (email, password)->
+  console.log 'logging in with ' + email + ' and ' + password
+  uploader.login(email, password)
+    .then (data)->
+      console.log 'logged in as', data
+      CURRENT_USER = new User(email: data.email, password: data.password, sessionToken: data.sessionToken)
+      deferred = q.defer()
+      # Fetch ACLs
+      uploader.getAllACLs(data.sessionToken).then (acls)=>
+        if acls.length < 1
+          console.log 'creating an ACL'
+          uploader.createACL(CURRENT_USER.sessionToken).then (ids)=>
+            CURRENT_USER.sharedACL = ids[0]
+            deferred.resolve(CURRENT_USER)
+        else
+          CURRENT_USER.sharedACL = acls[0]
+          console.log 'CURRENT_USER:', CURRENT_USER
+          deferred.resolve(CURRENT_USER)
+      deferred.promise
+
+    .catch (err)->
+      console.log 'Error logging in and fetching ACLs:', err
+
+    .finally ->
+      menubar.window.loadURL(path.join('file://', __dirname, 'dist/PicShare-darwin-x64/PicShare.app/Contents/Resources/app/index.html'))
 
 
 BASE_URL = "http://caputo.io/#/gallery" #"localhost:9001/#/gallery"
@@ -68,7 +84,8 @@ uploadScreenshot = ->
 
           fs.unlink(path.join(tmpDir, "electron_pic.png"))
         .catch (err)->
-          console.log 'failed to get an acl:', err
+          error = (val for key, val of err)
+          console.log 'failed to get an acl:', error[0]
 
     else
       console.log path.join(tmpDir, "electron_pic.png") + "doesnt exist"
@@ -104,7 +121,7 @@ menubar.on 'show', ->
   sendContent(menubar.window)
 
 sendContent = (window)->
-  window.webContents.send('pictures', {images: lastImages, root: process.env.APIROOT, apikey: process.env.APIKEY, appid: process.env.APPID}) if window?.webContents
+  window.webContents.send('pictures', {images: lastImages, root: process.env.APIROOT, apikey: process.env.APIKEY, appid: process.env.APPID, version: pkg.version}) if window?.webContents
 
 
 menubar.on('after-create-window', ->
@@ -130,9 +147,16 @@ require('electron').ipcMain.on 'exit', (event, shouldExit)->
 .on 'copy', (event, url)->
   getShortUrl(url).then (shortenedUrl)->
     clipboard.writeText(shortenedUrl)
+.on 'login', (event, credentials)->
+  console.log 'credentials:', credentials
+  login(credentials.email, credentials.password)
 
 
 menubar.on 'ready', ->
   globalShortcut.register('Command+shift+5', takeScreenshot)
+  init()
+#  CURRENT_USER = User.login('mcaputo@cloudmine.me', 'testing', menubar.window).then (data)->
+#    console.log 'user found:', data
+#    CURRENT_USER = new User
 
   this

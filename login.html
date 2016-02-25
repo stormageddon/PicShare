@@ -1,0 +1,34 @@
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="index.css"></link>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"></link>
+  </head>
+  <body>
+    <div style="width: 100%">
+      <h2 style="margins: 0 auto;">Pic Share</h2>
+      <img src="./img/upload-cloud.svg" width="45%" />
+      <div style="display: none;">
+	<p style="color: red">Invalid username</p>
+      </div>
+      <div style="margin: 0 auto;">
+	<form name="loginForm">
+	  <label>email</label>
+	  <input type="text" id="email"/>
+	  <br>
+	  <label>Password</label>
+	  <input type="password" id="password" flex="flex"/>
+	</form>
+      </div>
+      <div>
+	<button onclick="login();">Login</button>
+	<a href="#">or register</a>
+      </div>
+    </div>
+    <script>
+      var ipc = require('electron').ipcRenderer;
+      var login = function() {
+        ipc.send('login', {'email': document.getElementById('email').value, 'password': document.getElementById('password').value});
+      }
+    </script>
+  </body>
+</html>

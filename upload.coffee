@@ -19,9 +19,9 @@ class Upload
   getWebService: ->
     return @__ws if @__ws
     @__ws = new cloudmine.WebService({
-      appid: process.env.APPID
-      apikey: process.env.APIKEY
-      apiroot: process.env.APIROOT
+      appid: @appId #process.env.APPID
+      apikey: @apiKey #process.env.APIKEY
+      apiroot: @apiRoot #process.env.APIROOT
     })
 
   upload: (file, user)->
@@ -88,6 +88,7 @@ class Upload
     deferred = q.defer()
     @__ws.searchFiles('[content_type = "image/png"]', {limit: FILE_LIMIT, sort: '__created__:desc'}).on 'success', (results)->
       # Convert to array
+      console.log 'file results', results
       fileArray = (val for key, val of results)
       deferred.resolve(fileArray)
     .on 'error', (err)->

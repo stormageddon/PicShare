@@ -46,10 +46,12 @@ login = (email, password)->
           console.log 'creating an ACL'
           uploader.createACL(CURRENT_USER.sessionToken).then (ids)=>
             CURRENT_USER.sharedACL = ids[0]
+            fetchLastImages()
             deferred.resolve(CURRENT_USER)
         else
           CURRENT_USER.sharedACL = acls[0]
           console.log 'CURRENT_USER:', CURRENT_USER
+          fetchLastImages()
           deferred.resolve(CURRENT_USER)
 
         menubar.window.loadURL(path.join('file://', __dirname, 'dist/PicShare-darwin-x64/PicShare.app/Contents/Resources/app/index.html'))
@@ -108,26 +110,24 @@ takeScreenshot = ->
   shelljs.exec "screencapture -i /tmp/electron_pic.png", ->
     uploadScreenshot()
     fetchLastImages()
-    sendContent(menubar.window)
 
 lastImages = {}
 
 fetchLastImages = ->
   uploader.getRecentFiles().then (files)->
     lastImages = files
+    sendContent(menubar.window)
   .catch (err)->
     console.log 'error fetching previous images', err
 
 close = ->
   app.quit()
 
-fetchLastImages()
-
 menubar.on 'show', ->
-  fetchLastImages()
   sendContent(menubar.window)
 
 sendContent = (window)->
+  console.log("Sending content");
   window.webContents.send('pictures', {images: lastImages, root: process.env.APIROOT, apikey: process.env.APIKEY, appid: process.env.APPID, version: pkg.version}) if window?.webContents
 
 

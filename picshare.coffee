@@ -3,7 +3,7 @@ path = require('path')
 electron = require('electron')
 app = electron.app
 BrowserWindow = electron.BrowserWindow
-menubar = require('menubar')({ dir: __dirname, index: 'file://' + path.join(__dirname, 'dist/PicShare-darwin-x64/PicShare.app/Contents/Resources/app/login.html'), icon: path.join(__dirname, 'dist/PicShare-darwin-x64/PicShare.app/Contents/Resources/app/img/cloud_icon.png'), resizable: no })
+menubar = require('menubar')({ dir: __dirname, index: 'file://' + path.join(__dirname, 'dist/PicShare-darwin-x64/PicShare.app/Contents/Resources/app/login.html'), icon: path.join(__dirname, 'dist/PicShare-darwin-x64/PicShare.app/Contents/Resources/app/img/cloud_icon.png'), resizable: yes })
 Tray = electron.Tray
 globalShortcut = electron.globalShortcut
 clipboard = electron.clipboard
@@ -150,6 +150,8 @@ require('electron').ipcMain.on 'exit', (event, shouldExit)->
 .on 'login', (event, credentials)->
   console.log 'credentials:', credentials
   login(credentials.email, credentials.password)
+.on 'openSettings', (event)->
+  menubar.window.openDevTools()
 
 
 menubar.on 'ready', ->

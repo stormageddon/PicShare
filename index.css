@@ -82,3 +82,11 @@ body {
     display: inline-block;
     float: left;    
 }
+
+.fa-cog {
+    cursor: pointer;
+}
+
+.fa-cog:hover {
+    opacity: 0.5;
+}

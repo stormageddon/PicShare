@@ -29,6 +29,10 @@ init = ->
   console.log 'initing'
 
 
+setLoginError = ->
+  console.log 'sending error', window
+  window.webContents.send('errorMessage', 'Invalid username or password') if window?.webContents
+
 login = (email, password)->
   console.log 'logging in with ' + email + ' and ' + password
   uploader.login(email, password)
@@ -47,13 +51,16 @@ login = (email, password)->
           CURRENT_USER.sharedACL = acls[0]
           console.log 'CURRENT_USER:', CURRENT_USER
           deferred.resolve(CURRENT_USER)
+
+        menubar.window.loadURL(path.join('file://', __dirname, 'dist/PicShare-darwin-x64/PicShare.app/Contents/Resources/app/index.html'))
       deferred.promise
 
     .catch (err)->
       console.log 'Error logging in and fetching ACLs:', err
+      setLoginError()
 
     .finally ->
-      menubar.window.loadURL(path.join('file://', __dirname, 'dist/PicShare-darwin-x64/PicShare.app/Contents/Resources/app/index.html'))
+
 
 
 BASE_URL = "http://caputo.io/#/gallery" #"localhost:9001/#/gallery"
@@ -125,7 +132,7 @@ sendContent = (window)->
 
 
 menubar.on('after-create-window', ->
-  #menubar.window.openDevTools()
+  menubar.window.openDevTools()
   if menubar?.window?.webContents?
     menubar.window.webContents.on 'did-finish-load', ->
       sendContent(menubar.window)
@@ -152,7 +159,6 @@ require('electron').ipcMain.on 'exit', (event, shouldExit)->
   login(credentials.email, credentials.password)
 .on 'openSettings', (event)->
   menubar.window.openDevTools()
-
 
 menubar.on 'ready', ->
   globalShortcut.register('Command+shift+5', takeScreenshot)

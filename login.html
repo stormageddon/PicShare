@@ -1,31 +1,41 @@
 <html>
   <head>
-    <link rel="stylesheet" type="text/css" href="index.css"></link>
+    <link rel="stylesheet" type="text/css" href="login.css"></link>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"></link>
   </head>
   <body>
     <div style="width: 100%">
       <h2 style="margins: 0 auto;">Pic Share</h2>
       <img src="./img/upload-cloud.svg" width="45%" />
-      <div style="display: none;">
+      <div id="errorLabel" style="display: none;">
 	<p style="color: red">Invalid username</p>
       </div>
-      <div>
-	<form name="loginForm">
-	  <label>email</label>
-	  <input type="text" id="email"/>
-	  <br>
-	  <label>Password</label>
-	  <input type="password" id="password" flex="flex"/>
+      <div id="login-container">
+	<form class="login-form" name="loginForm" onsubmit="return;">
+	  <div>
+	    <label>email</label>
+	    <input type="text" id="email"/>
+	  </div>
+	  <div>
+	    <label>Password</label>
+	    <input type="password" id="password" flex="flex"/>
+	  </div>
+	  <div>
+	    <button type='submit' onclick="login();">Login</button>
+	    <a href="#">or register</a>
+	  </div>	
 	</form>
       </div>
-      <div>
-	<button onclick="login();">Login</button>
-	<a href="#">or register</a>
-      </div>
+
     </div>
     <script>
       var ipc = require('electron').ipcRenderer;
+
+      ipc.on('errorMessage', function(event, errorMessage) {
+        console.log("Error!", errorMessage)
+        document.getElementById("errorLabel").style.display = 'visible'
+      });
+      
       var login = function() {
         ipc.send('login', {'email': document.getElementById('email').value, 'password': document.getElementById('password').value});
       }

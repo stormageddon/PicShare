@@ -39,6 +39,15 @@
       var login = function() {
         ipc.send('login', {'email': document.getElementById('email').value, 'password': document.getElementById('password').value});
       }
+
+      user = localStorage.getItem('user');
+      console.log(user);
+      
+      if(user) {
+        ipc.send('storedUser', user);
+      }
+      
+
     </script>
   </body>
 </html>

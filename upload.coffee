@@ -84,9 +84,12 @@ class Upload
         deferred.reject(err)
     deferred.promise
 
-  getRecentFiles: ->
+  getRecentFiles: (sessionToken = null)->
     deferred = q.defer()
-    @__ws.searchFiles('[content_type = "image/png"]', {limit: FILE_LIMIT, sort: '__created__:desc'}).on 'success', (results)->
+    wsOptions = {limit: FILE_LIMIT, sort: '__created__:desc'}
+    wsOptions['session_token'] = sessionToken if sessionToken
+    console.log 'wsOptions:', wsOptions
+    @__ws.searchFiles('[content_type = "image/png"]', wsOptions).on 'success', (results)->
       # Convert to array
       console.log 'file results', results
       fileArray = (val for key, val of results)

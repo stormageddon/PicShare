@@ -3,7 +3,7 @@ path = require('path')
 electron = require('electron')
 app = electron.app
 BrowserWindow = electron.BrowserWindow
-menubar = require('menubar')({ dir: __dirname, index: 'file://' + path.join(__dirname, 'dist/PicShare-darwin-x64/PicShare.app/Contents/Resources/app/login.html'), icon: path.join(__dirname, 'dist/PicShare-darwin-x64/PicShare.app/Contents/Resources/app/img/cloud_icon.png'), resizable: yes })
+menubar = require('menubar')({ dir: __dirname, index: 'file://' + path.join(__dirname, 'dist/PicShare-darwin-x64/PicShare.app/Contents/Resources/app/login.html'), icon: path.join(__dirname, 'dist/PicShare-darwin-x64/PicShare.app/Contents/Resources/app/img/cloud_icon.png'), resizable: yes, width: '800', preloadWindow: yes })
 Tray = electron.Tray
 globalShortcut = electron.globalShortcut
 clipboard = electron.clipboard
@@ -39,6 +39,7 @@ login = (email, password)->
     .then (data)->
       console.log 'logged in as', data
       CURRENT_USER = new User(email: data.email, password: data.password, sessionToken: data.sessionToken)
+
       deferred = q.defer()
       # Fetch ACLs
       uploader.getAllACLs(data.sessionToken).then (acls)=>
@@ -55,15 +56,12 @@ login = (email, password)->
           deferred.resolve(CURRENT_USER)
 
         menubar.window.loadURL(path.join('file://', __dirname, 'dist/PicShare-darwin-x64/PicShare.app/Contents/Resources/app/index.html'))
+
       deferred.promise
 
     .catch (err)->
       console.log 'Error logging in and fetching ACLs:', err
       setLoginError()
-
-    .finally ->
-
-
 
 BASE_URL = "http://caputo.io/#/gallery" #"localhost:9001/#/gallery"
 
@@ -114,7 +112,7 @@ takeScreenshot = ->
 lastImages = {}
 
 fetchLastImages = ->
-  uploader.getRecentFiles().then (files)->
+  uploader.getRecentFiles(CURRENT_USER.sessionToken).then (files)->
     lastImages = files
     sendContent(menubar.window)
   .catch (err)->
@@ -129,6 +127,8 @@ menubar.on 'show', ->
 sendContent = (window)->
   console.log("Sending content");
   window.webContents.send('pictures', {images: lastImages, root: process.env.APIROOT, apikey: process.env.APIKEY, appid: process.env.APPID, version: pkg.version}) if window?.webContents
+
+  window.webContents.send('authedUser', CURRENT_USER) if window?.webContents and CURRENT_USER?.sessionToken
 
 
 menubar.on('after-create-window', ->
@@ -159,6 +159,12 @@ require('electron').ipcMain.on 'exit', (event, shouldExit)->
   login(credentials.email, credentials.password)
 .on 'openSettings', (event)->
   menubar.window.openDevTools()
+.on 'storedUser', (event, user)->
+  menubar.window.loadURL(path.join('file://', __dirname, 'dist/PicShare-darwin-x64/PicShare.app/Contents/Resources/app/index.html'))
+  CURRENT_USER = new User(JSON.parse(user))
+  CURRENT_USER.sharedACL = JSON.parse(user).sharedACL
+  console.log 'found user:', CURRENT_USER
+  fetchLastImages()
 
 menubar.on 'ready', ->
   globalShortcut.register('Command+shift+5', takeScreenshot)

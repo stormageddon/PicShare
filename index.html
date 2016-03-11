@@ -43,8 +43,16 @@
       var openSettings = function() {
         ipc.send('openSettings');
       }
-      
-      ipc.on('pictures', function(event, message) {
+
+      ipc.on('authedUser', function(event, user) {
+        delete user.password // Don't store password
+        console.log('user to save:', user);
+        potentialUser = localStorage.getItem('user');
+        if(!potentialUser) {
+          localStorage.setItem('user', JSON.stringify(user));
+        }
+        console.log("Local storage:", localStorage);
+      }).on('pictures', function(event, message) {
         var photoHTML = "";
         for(var i = 0; i < message.images.length; i++) {
           var link = message.root + "/v1/app/" + message.appid + "/user/binary/" + message.images[i].filename + "?apikey=" + message.apikey + "&shared=true";

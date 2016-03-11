@@ -85,6 +85,8 @@ uploadScreenshot = ->
 
             notify('Your link is available for sharing!', 'Use \u2318+v to send it!')
 
+            fetchLastImages()
+
           .catch (err)->
             notify("Something's gone wrong", 'There was an error processing your request')
             console.log 'err', err
@@ -169,8 +171,5 @@ require('electron').ipcMain.on 'exit', (event, shouldExit)->
 menubar.on 'ready', ->
   globalShortcut.register('Command+shift+5', takeScreenshot)
   init()
-#  CURRENT_USER = User.login('mcaputo@cloudmine.me', 'testing', menubar.window).then (data)->
-#    console.log 'user found:', data
-#    CURRENT_USER = new User
 
   this

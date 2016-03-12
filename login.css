@@ -1,10 +1,16 @@
 .login-form {
     width: 50%;
     margin: 0 auto;
+    padding: 16px;
 }
 
 .login-form input {
     width: 100%;
+}
+
+.input-container {
+    padding: 8px;
+    font-family: lato, lato-regular, sans-serif;
 }
 
 #login-container {

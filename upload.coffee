@@ -101,9 +101,17 @@ class Upload
 
     deferred.promise
 
+  register: (credentials)->
+    deferred = q.defer()
+    @__ws.createUser(credentials).on 'success', (data)->
+      deferred.resolve(data);
+    .on 'error', (err)->
+      deferred.reject(err);
+    deferred.promise
+
   login: (email, password)->
     deferred = q.defer()
-    @__ws.login({email: email, password: password}).on 'success', (data)->
+    @__ws.login({username: email, password: password}).on 'success', (data)->
       console.log 'logged in?', data
       console.log 'info:', email, password
       deferred.resolve({email: email, password: password, sessionToken: data.session_token})

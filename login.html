@@ -4,25 +4,23 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"></link>
   </head>
   <body>
-    <div style="width: 100%">
-      <h2 style="margins: 0 auto;">Pic Share</h2>
+    <div style="width: 100%; text-align: center;">
+      <h2 style="margins: 0 auto; font-family: lato-bold, sans-serif;">Pic Share</h2>
       <img src="./img/upload-cloud.svg" width="45%" />
       <div id="errorLabel" style="display: none;">
 	<p style="color: red">Invalid username</p>
       </div>
       <div id="login-container">
 	<form class="login-form" name="loginForm" onsubmit="return;">
-	  <div>
-	    <label>email</label>
-	    <input type="text" id="email"/>
+	  <div class="input-container">
+	    <input type="text" id="email" placeholder="username"/>
 	  </div>
-	  <div>
-	    <label>Password</label>
-	    <input type="password" id="password" flex="flex"/>
+	  <div class="input-container">
+	    <input type="password" id="password" flex="flex" placeholder="password"/>
 	  </div>
 	  <div>
 	    <button type='submit' onclick="login();">Login</button>
-	    <a href="#">or register</a>
+	    <button onclick="register();">Register</a>
 	  </div>	
 	</form>
       </div>
@@ -35,6 +33,21 @@
         console.log("Error!", errorMessage)
         document.getElementById("errorLabel").style.display = 'visible'
       });
+
+      var register = function(event) {
+        email = document.getElementById('email').value
+        password = document.getElementById('password').value
+
+        console.log("Email:", email);
+        console.log("Password:", password);
+      
+        if( email.length === 0 || password.length === 0 ) {
+          document.getElementById('errorLabel').innerHTML = '<p>Email and password required to register</p>';
+          return;
+        }
+        ipc.send('register', {'username': email, 'password': password});
+      }
+      
       
       var login = function() {
         ipc.send('login', {'email': document.getElementById('email').value, 'password': document.getElementById('password').value});

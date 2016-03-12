@@ -6,7 +6,7 @@
   <body style="background: #F5F5F5;">
     <section class="header">
       <div id="brand">
-        <h1 style="vertical-align: top;">PicShare</h1>
+        <h1 class="title">PicShare</h1>
       </div>
       <div id="actions">
 	<i class="fa fa-cog" onclick="openSettings()"></i>
@@ -14,8 +14,8 @@
       </div>
     <span style="height: 100%">
     <div style="height: 35px; width: 100%; background: #F5F5F5; margin-top: 365px; margin-left: -8px;">
-      <div id="brand" width="100%" style="text-align: center;">
-	<p id="version" style="font-family: 'courier new'; color: #595959; margin-left: 150px;"> v0.0.0 </p>
+      <div id="footer-brand">
+	<p id="version"> v0.0.0 </p>
       </div>
     </div>
     
@@ -70,8 +70,23 @@
         }
         document.getElementById("photoList").innerHTML = photoHTML;
         document.getElementById("version").innerHTML = "v" + message.version;
-        console.log('message:' + message);
+        console.log('message:' + message);	   
+			   
       });
+
+      remote = require('electron').remote;
+      Menu = remote.Menu;
+      MenuItem = remote.MenuItem;
+
+      var menu = new Menu();
+      menu.append(new MenuItem({ label: 'Dev tools', click: function() { ipc.send('openDevTools'); } }));
+			   
+      menu.append(new MenuItem({ label: 'Quit', click: function() { ipc.send('quit'); } }));
+
+      ipc.on('contextMenu', function(event) {
+        console.log("CONTEXT MENU");		   
+        menu.popup();
+      });				   
     </script>
   </body>
 </html>

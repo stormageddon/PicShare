@@ -17,8 +17,15 @@ body {
 #brand {
     float: left;
     height: 50px;
-    width: 15%;
     margin-top: -8px;
+}
+
+#footer-brand {
+    float: left;
+    height: 50px;
+    width: inherit;
+    margin-top: -8px;
+    text-align: center;
 }
 
 #actions {
@@ -89,4 +96,15 @@ body {
 
 .fa-cog:hover {
     opacity: 0.5;
+}
+
+.title {
+    vertical-align: top;
+    font-family: lato, sans-serif;
+    font-weight: 200;
+}
+
+p#version {
+    font-family: "Courier New";
+    color: #595959;
 }

@@ -3,8 +3,9 @@ path = require('path')
 electron = require('electron')
 app = electron.app
 BrowserWindow = electron.BrowserWindow
-menubar = require('menubar')({ dir: __dirname, index: 'file://' + path.join(__dirname, 'dist/PicShare-darwin-x64/PicShare.app/Contents/Resources/app/login.html'), icon: path.join(__dirname, 'dist/PicShare-darwin-x64/PicShare.app/Contents/Resources/app/img/cloud_icon.png'), resizable: yes, width: '800', preloadWindow: yes })
+menubar = require('menubar')({ dir: __dirname, index: 'file://' + path.join(__dirname, 'dist/PicShare-darwin-x64/PicShare.app/Contents/Resources/app/login.html'), icon: path.join(__dirname, 'dist/PicShare-darwin-x64/PicShare.app/Contents/Resources/app/img/cloud_icon.png'), resizable: yes, preloadWindow: yes })
 Tray = electron.Tray
+Menu = electron.Menu
 globalShortcut = electron.globalShortcut
 clipboard = electron.clipboard
 notifier = require('node-notifier')
@@ -17,7 +18,6 @@ tmpDir = '/tmp'
 Upload = require('./upload.js')
 User = require('./user.js')
 CURRENT_USER = null
-
 
 uploader = new Upload({
   appId: process.env.APPID
@@ -132,9 +132,12 @@ sendContent = (window)->
 
   window.webContents.send('authedUser', CURRENT_USER) if window?.webContents and CURRENT_USER?.sessionToken
 
+showSettingsPanel = ->
+  console.log 'showing settings menu'
+  menubar.window.webContents.send 'contextMenu'
 
 menubar.on('after-create-window', ->
-  menubar.window.openDevTools()
+  #menubar.window.openDevTools()
   if menubar?.window?.webContents?
     menubar.window.webContents.on 'did-finish-load', ->
       sendContent(menubar.window)
@@ -160,16 +163,20 @@ require('electron').ipcMain.on 'exit', (event, shouldExit)->
   console.log 'credentials:', credentials
   login(credentials.email, credentials.password)
 .on 'openSettings', (event)->
-  menubar.window.openDevTools()
+  #menubar.window.openDevTools()
+  showSettingsPanel()
 .on 'storedUser', (event, user)->
   menubar.window.loadURL(path.join('file://', __dirname, 'dist/PicShare-darwin-x64/PicShare.app/Contents/Resources/app/index.html'))
   CURRENT_USER = new User(JSON.parse(user))
   CURRENT_USER.sharedACL = JSON.parse(user).sharedACL
   console.log 'found user:', CURRENT_USER
   fetchLastImages()
+.on 'openDevTools', (event)->
+  menubar.window.openDevTools()
+.on 'quit', (event)->
+  menubar.app.quit()
 
 menubar.on 'ready', ->
   globalShortcut.register('Command+shift+5', takeScreenshot)
-  init()
 
   this

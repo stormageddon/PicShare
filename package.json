@@ -15,11 +15,12 @@
     "electron-prebuilt": "^0.36.0"
   },
   "dependencies": {
+    "auto-launch": "^1.1.1",
     "bitcly": "^1.1.1",
     "cloudmine": "^0.9.14",
     "menubar": "^3.0.0",
     "node-notifier": "^4.4.0",
-    "shelljs": "^0.5.3",
-    "q": "^1.4.1"
+    "q": "^1.4.1",
+    "shelljs": "^0.5.3"
   }
 }

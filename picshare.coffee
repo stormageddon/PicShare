@@ -3,7 +3,7 @@ path = require('path')
 electron = require('electron')
 app = electron.app
 BrowserWindow = electron.BrowserWindow
-menubar = require('menubar')({ dir: __dirname, index: 'file://' + path.join(__dirname, 'dist/PicShare-darwin-x64/PicShare.app/Contents/Resources/app/login.html'), icon: path.join(__dirname, 'dist/PicShare-darwin-x64/PicShare.app/Contents/Resources/app/img/cloud_icon.png'), resizable: yes, preloadWindow: yes })
+menubar = require('menubar')({ dir: __dirname, index: 'file://' + path.join(__dirname, 'login.html'), icon: path.join(__dirname, 'img/cloud_icon.png'), resizable: yes, preloadWindow: yes })
 Tray = electron.Tray
 Menu = electron.Menu
 globalShortcut = electron.globalShortcut
@@ -17,12 +17,29 @@ File = require('./file.js')
 tmpDir = '/tmp'
 Upload = require('./upload.js')
 User = require('./user.js')
+config = require('./config.json')
+
 CURRENT_USER = null
 
+APP_ID = if config.app_id then config.app_id else process.env.APPID
+API_KEY = if config.api_key then config.api_key else process.env.APIKEY
+API_ROOT = if config.api_root then config.api_root else process.env.APIROOT
+
+# Set up autolaunch
+AutoLaunch = require('auto-launch')
+
+picshareAutoLauncher = new AutoLaunch({
+    name: 'Minecraft',
+})
+
+picshareAutoLauncher.enable();
+#minecraftAutoLauncher.disable();
+
+
 uploader = new Upload({
-  appId: process.env.APPID
-  apiKey: process.env.APIKEY
-  apiRoot: process.env.APIROOT
+  appId: APP_ID
+  apiKey: API_KEY
+  apiRoot: API_ROOT
 })
 
 init = ->
@@ -55,7 +72,7 @@ login = (email, password)->
           fetchLastImages()
           deferred.resolve(CURRENT_USER)
 
-        menubar.window.loadURL(path.join('file://', __dirname, 'dist/PicShare-darwin-x64/PicShare.app/Contents/Resources/app/index.html'))
+        menubar.window.loadURL(path.join('file://', __dirname, 'index.html'))
 
       deferred.promise
 
@@ -63,7 +80,6 @@ login = (email, password)->
       console.log 'Error logging in and fetching ACLs:', err
       setLoginError()
 
-BASE_URL = "http://caputo.io/#/gallery" #"localhost:9001/#/gallery"
 
 uploadScreenshot = ->
   fs.exists path.join(tmpDir, "electron_pic.png"), (exists)->
@@ -73,11 +89,10 @@ uploadScreenshot = ->
         path: path.join(tmpDir, "electron_pic.png")
       })
 
-      uploader.upload(file, CURRENT_USER) # return promise
+      uploader.upload(file, CURRENT_USER, API_KEY) # return promise
       .then (file)->
         uploader.addACL(file, CURRENT_USER).then (result)->
-          url = "#{BASE_URL}/#{file.key}"
-          file.url = "#{process.env.APIROOT}/v1/app/#{process.env.APPID}/user/binary/#{file.key}?apikey=#{process.env.APIKEY}&shared=true"
+          file.url = "#{API_ROOT}/v1/app/#{APP_ID}/user/binary/#{file.key}?apikey=#{API_KEY}&shared=true"
 
           getShortUrl(file.url).then (shortenedUrl)->
             clipboard.writeText(shortenedUrl)
@@ -95,6 +110,7 @@ uploadScreenshot = ->
         .catch (err)->
           error = (val for key, val of err)
           console.log 'failed to get an acl:', error[0]
+          console.log 'err:', err
 
     else
       console.log path.join(tmpDir, "electron_pic.png") + "doesnt exist"
@@ -121,14 +137,14 @@ fetchLastImages = ->
     console.log 'error fetching previous images', err
 
 close = ->
-  app.quit()
+  app.close()
 
 menubar.on 'show', ->
   sendContent(menubar.window)
 
 sendContent = (window)->
   console.log("Sending content");
-  window.webContents.send('pictures', {images: lastImages, root: process.env.APIROOT, apikey: process.env.APIKEY, appid: process.env.APPID, version: pkg.version}) if window?.webContents
+  window.webContents.send('pictures', {images: lastImages, root: API_ROOT, apikey: API_KEY, appid: APP_ID, version: pkg.version}) if window?.webContents
 
   window.webContents.send('authedUser', CURRENT_USER) if window?.webContents and CURRENT_USER?.sessionToken
 
@@ -166,7 +182,7 @@ require('electron').ipcMain.on 'exit', (event, shouldExit)->
   #menubar.window.openDevTools()
   showSettingsPanel()
 .on 'storedUser', (event, user)->
-  menubar.window.loadURL(path.join('file://', __dirname, 'dist/PicShare-darwin-x64/PicShare.app/Contents/Resources/app/index.html'))
+  menubar.window.loadURL(path.join('file://', __dirname, 'index.html'))
   CURRENT_USER = new User(JSON.parse(user))
   CURRENT_USER.sharedACL = JSON.parse(user).sharedACL
   console.log 'found user:', CURRENT_USER
@@ -179,8 +195,9 @@ require('electron').ipcMain.on 'exit', (event, shouldExit)->
   .catch (err)->
     console.log 'error registering', err
 .on 'logout', (event)->
+  console.log 'CURRENT USER TO LOG OUT:', CURRENT_USER
   uploader.logout(CURRENT_USER.sessionToken).then ->
-    menubar.window.loadURL(path.join('file://', __dirname, 'dist/PicShare-darwin-x64/PicShare.app/Contents/Resources/app/login.html'))
+    menubar.window.loadURL(path.join('file://', __dirname, 'login.html'))
 .on 'quit', (event)->
   menubar.app.quit()
 

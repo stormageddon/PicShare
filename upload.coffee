@@ -24,16 +24,19 @@ class Upload
       apiroot: @apiRoot #process.env.APIROOT
     })
 
-  upload: (file, user)->
+  upload: (file, user, key)->
     deferred = q.defer()
     opts = {contentType: file.contentType}
     opts['session_token'] = user.sessionToken
-    @__ws.upload(file.name, file.path, {contentType: file.contentType, apikey: process.env.CREATE_KEY, session_token: user.sessionToken}).on 'success', (data)->
+    console.log 'uploading: ', opts
+    console.log 'key: ', key
+    @__ws.upload(file.name, file.path, {contentType: file.contentType, apikey: key, session_token: user.sessionToken}).on 'success', (data)->
       console.log 'uploaded:', data
       deferred.resolve(data)
     .on 'error', (err)->
       console.log 'error uploading:', err
       deferred.reject(err)
+
     deferred.promise
 
 
@@ -121,7 +124,9 @@ class Upload
 
   logout: (token)->
     deferred = q.defer()
-    @__ws.logout(token).on 'success', (data)->
+    console.log 'Using token:', token
+    @__ws.options.session_token = token
+    @__ws.logout().on 'success', (data)->
       console.log 'logged out', data
       deferred.resolve(data)
     .on 'error', (err)->

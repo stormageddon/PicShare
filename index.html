@@ -60,9 +60,9 @@
 	  photoHTML += "<div class='img-container'>";
           photoHTML += "<img class='thumbnail' src='" + link + "' />";
 	  photoHTML += "</div>";
-          photoHTML += "<a href='" + link + "' target=_blank>";
+          photoHTML += "<span class='filename'>";
           photoHTML += message.images[i].filename;
-	  photoHTML += "</a>"
+	  photoHTML += "</span>"
 	  photoHTML += "<i class='fa fa-ellipsis-v fa-2x file-menu-button' onclick=showFileMenu('" + JSON.stringify(message.images[i]) + "')></i><br>";
           photoHTML += "<p class='date-added'>added ";
           photoHTML += moment(message.images[i]['__created__']).from(moment());

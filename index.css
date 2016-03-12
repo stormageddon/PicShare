@@ -120,3 +120,13 @@ p#version {
     cursor: pointer;
     opacity: 0.5;
 }
+
+.filename {
+    font-family: lato, sans-serif;
+    font-weight: 800;
+    padding-left: 8px;
+    display: inherit;
+    margin: 0px;
+    color: 7F7F7F;    
+}
+		     

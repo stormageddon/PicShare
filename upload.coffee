@@ -111,4 +111,14 @@ class Upload
       deferred.reject(err)
     deferred.promise
 
+  logout: (token)->
+    deferred = q.defer()
+    @__ws.logout(token).on 'success', (data)->
+      console.log 'logged out', data
+      deferred.resolve(data)
+    .on 'error', (err)->
+      console.log 'issue logging out', err
+      deferred.reject(err)
+    deferred.promise
+
   module.exports = Upload

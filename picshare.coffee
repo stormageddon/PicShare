@@ -173,6 +173,9 @@ require('electron').ipcMain.on 'exit', (event, shouldExit)->
   fetchLastImages()
 .on 'openDevTools', (event)->
   menubar.window.openDevTools()
+.on 'logout', (event)->
+  uploader.logout(CURRENT_USER.sessionToken).then ->
+    menubar.window.loadURL(path.join('file://', __dirname, 'dist/PicShare-darwin-x64/PicShare.app/Contents/Resources/app/login.html'))
 .on 'quit', (event)->
   menubar.app.quit()
 

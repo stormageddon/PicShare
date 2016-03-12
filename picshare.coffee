@@ -116,6 +116,12 @@ uploadScreenshot = ->
       console.log path.join(tmpDir, "electron_pic.png") + "doesnt exist"
 
 notify = (title, message)->
+  console.log 'notifying 1'
+  #Notification.requestPermission();
+  #console.log 'notifying 2'
+  #Notification(title, { body: message, icon: 'img/icon.png' });
+  #console.log 'notifying 3'
+  #ipc.send('notify', {title: title, body: message, icon: 'img/cloud_icon.png'})
   notifier.notify({
     title: title
     message: message

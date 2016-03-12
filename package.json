@@ -1,6 +1,6 @@
 {
   "name": "picshare",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "A screen shot sharing utility similar to dropbox or CloudApp",
   "main": "picshare.js",
   "scripts": {
@@ -9,17 +9,17 @@
   "author": "Mike Caputo",
   "license": "MIT",
   "devDependencies": {
-    "cloudmine": "^0.9.14",
     "coffee-script": "^1.10.0",
     "electron-builder": "^2.4.0",
     "electron-packager": "^5.1.1",
-    "electron-prebuilt": "^0.36.0",
-    "shelljs": "^0.5.3"
+    "electron-prebuilt": "^0.36.0"
   },
   "dependencies": {
     "bitcly": "^1.1.1",
+    "cloudmine": "^0.9.14",
     "menubar": "^3.0.0",
     "node-notifier": "^4.4.0",
+    "shelljs": "^0.5.3",
     "q": "^1.4.1"
   }
 }

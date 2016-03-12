@@ -39,6 +39,31 @@ class Upload
 
     deferred.promise
 
+  download: (file, user)->
+    deferred = q.defer()
+    opts = {session_token: user.sessionToken}
+    console.log 'file:', file
+    console.log 'user:', user
+    @__ws.download(file, opts).on 'success', (data)->
+      console.log 'downloaded:', data
+      deferred.resolve(data)
+    .on 'error', (err)->
+      console.log 'error downloading:', err
+      deferred.reject(err)
+    deferred.promise
+
+  deleteFile: (file, user)->
+    deferred = q.defer()
+    opts = {session_token: user.sessionToken}
+    console.log 'file:', file
+    console.log 'file name:', file.filename
+    @__ws.destroy(file.filename, opts).on 'success', (response)->
+      console.log 'response:', response
+      deferred.resolve(response)
+    .on 'error', (err)->
+      console.log 'err:', err
+      deferred.reject(err)
+    deferred.promise
 
   createACL: (sessionToken)->
     deferred = q.defer()

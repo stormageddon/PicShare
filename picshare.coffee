@@ -80,6 +80,14 @@ login = (email, password)->
       console.log 'Error logging in and fetching ACLs:', err
       setLoginError()
 
+createFileUrl = (file)->
+  file.url = "#{API_ROOT}/v1/app/#{APP_ID}/user/binary/#{file.filename}?apikey=#{API_KEY}&shared=true"
+
+  getShortUrl(file.url).then (shortenedUrl)->
+    clipboard.writeText(shortenedUrl)
+    file.shortUrl = shortenedUrl
+
+
 
 uploadScreenshot = ->
   fs.exists path.join(tmpDir, "electron_pic.png"), (exists)->
@@ -206,6 +214,18 @@ require('electron').ipcMain.on 'exit', (event, shouldExit)->
     menubar.window.loadURL(path.join('file://', __dirname, 'login.html'))
 .on 'quit', (event)->
   menubar.app.quit()
+.on 'copyFile', (event, file)->
+  console.log 'Copy file link:', file
+  createFileUrl(JSON.parse(file))
+  notify('Your link is available for sharing!', 'Use \u2318+v to send it!')
+.on 'downloadFile', (event, file)->
+  uploader.download(file, CURRENT_USER).then ->
+    console.log 'Download success!'
+.on 'deleteFile', (event, file)->
+  uploader.deleteFile(JSON.parse(file), CURRENT_USER).then (data)->
+    console.log 'Deleted file', data
+    fetchLastImages()
+
 
 menubar.on 'ready', ->
   globalShortcut.register('Command+shift+5', takeScreenshot)

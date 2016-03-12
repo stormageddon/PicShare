@@ -58,7 +58,7 @@ body {
     padding: 16px;
     padding-bottom: 0px;
     width: 100%;
-    height: 80px;
+    height: 50px;
     display: inline-block;
 }
 
@@ -68,26 +68,27 @@ body {
 
 .table-row a {
     padding-left: 8px;
-    padding-top: 8px;
     display: inherit;
-    margin-top: 16px;
 }
 
 .date-added {
+    margin-top: 0px;
     padding-left: 8px;
     display: inherit;
 }
 
 .thumbnail {
-    width: 70px;
+    width: auto;
+    height: 40px;
     float: left;
 }
 
 .img-container {
     height: 100%;
-    width: 80px;
+    width: 50px;
     display: inline-block;
-    float: left;    
+    float: left;
+    overflow: hidden;
 }
 
 .fa-cog {
@@ -107,4 +108,15 @@ body {
 p#version {
     font-family: "Courier New";
     color: #595959;
+}
+
+.file-menu-button {
+    width: 15%;
+    float: right;
+    color: #999999;
+}
+
+.file-menu-button:hover {
+    cursor: pointer;
+    opacity: 0.5;
 }

@@ -1,12 +1,20 @@
 <html>
   <head>
     <link rel="stylesheet" type="text/css" href="login.css"></link>
+    <link rel="stylesheet" type="text/css" href="index.css"></link>    
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"></link>
   </head>
   <body>
-    <div style="width: 100%; text-align: center;">
-      <h2 style="margins: 0 auto; font-family: lato-bold, sans-serif;">Pic Share</h2>
-      <img src="./img/upload-cloud.svg" width="45%" />
+    <section class="header">
+      <div id="brand">
+        <h1 class="title">PicShare</h1>
+      </div>
+      <div id="actions">
+	<i class="fa fa-cog" onclick="openSettings()"></i>
+      </div>
+    </section>  
+    <div class="login-content" style="width: 100%; text-align: center;">
+      <img id="logo" src="./img/upload-cloud.svg" width="45%" />
       <div id="errorLabel" style="display: none;">
 	<p style="color: red">Invalid username</p>
       </div>
@@ -59,6 +67,25 @@
       if(user) {
         ipc.send('storedUser', user);
       }
+
+      var openSettings = function() {
+        ipc.send('openSettings');
+      }
+
+
+      remote = require('electron').remote;
+      Menu = remote.Menu;
+      MenuItem = remote.MenuItem;
+			   
+      var menu = new Menu();
+      menu.append(new MenuItem({ label: 'Dev tools', click: function() { ipc.send('openDevTools'); } }));
+      menu.append(new MenuItem({ type: 'separator' }));
+      menu.append(new MenuItem({ label: 'Quit', click: function() { ipc.send('quit'); } }));			   
+
+      ipc.on('contextMenu', function(event) {
+        console.log("CONTEXT MENU");		   
+        menu.popup();
+      });
       
 
     </script>

@@ -19,7 +19,7 @@
 	<p style="color: red">Invalid username</p>
       </div>
       <div id="login-container">
-	<form class="login-form" name="loginForm" onsubmit="return;">
+	<form class="login-form" name="loginForm" onsubmit="return login()">
 	  <div class="input-container">
 	    <input type="text" id="email" placeholder="username"/>
 	  </div>
@@ -27,7 +27,7 @@
 	    <input type="password" id="password" flex="flex" placeholder="password"/>
 	  </div>
 	  <div>
-	    <button type='submit' onclick="login();">Login</button>
+	    <button type="submit">Login</button>
 	    <button onclick="register();">Register</a>
 	  </div>	
 	</form>
@@ -69,6 +69,7 @@
       
       var login = function() {
         ipc.send('login', {'email': document.getElementById('email').value, 'password': document.getElementById('password').value});
+        return false;
       }
 
       user = localStorage.getItem('user');

@@ -35,6 +35,16 @@
 
     </div>
     <script>
+      // Prevent drag n' drop files unloading page
+      document.addEventListener('drop', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+      document.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+	
       var ipc = require('electron').ipcRenderer;
 
       ipc.on('errorMessage', function(event, errorMessage) {

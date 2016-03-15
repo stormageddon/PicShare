@@ -3,7 +3,7 @@ path = require('path')
 electron = require('electron')
 app = electron.app
 BrowserWindow = electron.BrowserWindow
-menubar = require('menubar')({ dir: __dirname, index: 'file://' + path.join(__dirname, 'login.html'), icon: path.join(__dirname, 'img/cloud_icon.png'), resizable: yes, preloadWindow: yes })
+menubar = require('menubar')({ dir: __dirname, index: 'file://' + path.join(__dirname, 'login.html'), icon: path.join(__dirname, 'img/picshare_logo.png'), resizable: yes, preloadWindow: yes })
 Tray = electron.Tray
 Menu = electron.Menu
 globalShortcut = electron.globalShortcut
@@ -46,10 +46,6 @@ init = ->
   console.log 'initing'
 
 
-setLoginError = ->
-  console.log 'sending error', window
-  window.webContents.send('errorMessage', 'Invalid username or password') if window?.webContents
-
 login = (email, password)->
   console.log 'logging in with ' + email + ' and ' + password
   uploader.login(email, password)
@@ -77,8 +73,17 @@ login = (email, password)->
       deferred.promise
 
     .catch (err)->
+      console.log 'menubar:', menubar.window
+      menubar.window.WebContents.send('errorMessage', 'Invalid username or password') if menubar.window
       console.log 'Error logging in and fetching ACLs:', err
+
       setLoginError()
+
+
+setLoginError = ->
+  console.log 'sending error', window
+
+
 
 createFileUrl = (file)->
   file.url = "#{API_ROOT}/v1/app/#{APP_ID}/user/binary/#{file.filename}?apikey=#{API_KEY}&shared=true"

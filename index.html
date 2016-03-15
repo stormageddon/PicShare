@@ -61,7 +61,10 @@
           localStorage.setItem('user', JSON.stringify(user));
         }
         console.log("Local storage:", localStorage);
+
+      
       }).on('pictures', function(event, message) {
+        autoLaunchMenuItem.checked = message.autolaunch
         var photoHTML = "";
         for(var i = 0; i < message.images.length; i++) {
           var link = message.root + "/v1/app/" + message.appid + "/user/binary/" + message.images[i].filename + "?apikey=" + message.apikey + "&shared=true";
@@ -102,15 +105,25 @@
 
 
 			   
+
+      var checkboxClicked = function() {
+        console.log("autolaunch:", autoLaunchMenuItem.checked);
+        ipc.send('toggleCheck', autoLaunchMenuItem.checked);			   
+      }
+
 			   
       var menu = new Menu();
       menu.append(new MenuItem({ label: 'Dev tools', click: function() { ipc.send('openDevTools'); } }));
       menu.append(new MenuItem({ label: 'Log Out', click: function() { localStorage.clear(); ipc.send('logout'); } }));			   
 
-      menu.append(new MenuItem({ label: 'Launch on login', type: 'checkbox', checked: true }));
+      autoLaunchMenuItem = new MenuItem({ label: 'Launch on login', type: 'checkbox', checked: true, click: checkboxClicked });
+			   
+      menu.append(autoLaunchMenuItem);
+
       menu.append(new MenuItem({ type: 'separator' }));
       menu.append(new MenuItem({ label: 'Quit', click: function() { ipc.send('quit'); } }));			   
 
+			   
       ipc.on('contextMenu', function(event) {
         console.log("CONTEXT MENU");		   
         menu.popup();

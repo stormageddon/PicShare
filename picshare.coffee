@@ -27,13 +27,20 @@ API_ROOT = if config.api_root then config.api_root else process.env.APIROOT
 
 # Set up autolaunch
 AutoLaunch = require('auto-launch')
-
 picshareAutoLauncher = new AutoLaunch({
-    name: 'Minecraft',
+    name: 'PicShare'
 })
 
-picshareAutoLauncher.enable();
-#minecraftAutoLauncher.disable();
+setAutoLaunch = (enable)->
+  console.log 'enable autolaunch:', enable
+  config.autolaunch = enable
+  console.log 'config:', config
+  configPath = path.join(__dirname, 'config.json')
+  fs.writeFile(configPath, JSON.stringify(config), (err)->
+    return console.log 'error writing config file' if err
+    return picshareAutoLauncher.enable() if enable
+    picshareAutoLauncher.disable();
+  )
 
 
 uploader = new Upload({
@@ -163,9 +170,12 @@ menubar.on 'show', ->
 
 sendContent = (window)->
   console.log("Sending content");
-  window.webContents.send('pictures', {images: lastImages, root: API_ROOT, apikey: API_KEY, appid: APP_ID, version: pkg.version}) if window?.webContents
+  window.webContents.send('pictures', {images: lastImages, root: API_ROOT, apikey: API_KEY, appid: APP_ID, version: pkg.version, autolaunch: config.autolaunch}) if window?.webContents
 
-  window.webContents.send('authedUser', CURRENT_USER) if window?.webContents and CURRENT_USER?.sessionToken
+  data =
+    user: CURRENT_USER
+    autolaunch: config.autolaunch
+  window.webContents.send('authedUser', data) if window?.webContents and CURRENT_USER?.sessionToken
 
 showSettingsPanel = ->
   console.log 'showing settings menu'
@@ -230,7 +240,9 @@ require('electron').ipcMain.on 'exit', (event, shouldExit)->
   uploader.deleteFile(JSON.parse(file), CURRENT_USER).then (data)->
     console.log 'Deleted file', data
     fetchLastImages()
-
+.on 'toggleCheck', (event, checked)->
+  console.log 'toggling check:', checked
+  setAutoLaunch(checked)
 
 menubar.on 'ready', ->
   globalShortcut.register('Command+shift+5', takeScreenshot)

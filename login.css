@@ -24,3 +24,11 @@
 #logo {
     margin-top: 50px;
 }
+
+#confirmPassword {
+    display: none;
+}
+
+#registerButton {
+    display: none;
+}

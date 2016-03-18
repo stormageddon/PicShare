@@ -26,15 +26,25 @@
 	  <div class="input-container">
 	    <input type="password" id="password" flex="flex" placeholder="password"/>
 	  </div>
+	  <div class="input-container">
+	    <input type="password" id="confirmPassword" flex="flex" placeholder="confirm password"/>
+	  </div>
 	  <div>
-	    <button type="submit">Login</button>
-	    <button onclick="register();">Register</a>
+	    <button type="submit" id="loginButton">Login</button>
+	    <button on-click="signUp()" id="registerButton">Register</button>	    
+	    <p onclick="register();" id="or_link">or register</p>
+	  </div>
+	  <div>
+	    <p>New to PicShare?</p>
+	    <button onclick="register();">Create an account</a>
 	  </div>	
 	</form>
       </div>
 
     </div>
     <script>
+      var isRegistering = false;
+      
       // Prevent drag n' drop files unloading page
       document.addEventListener('drop', function(e) {
         e.preventDefault();
@@ -49,10 +59,35 @@
 
       ipc.on('errorMessage', function(event, errorMessage) {
         console.log("Error!", errorMessage)
-        document.getElementById("errorLabel").style.display = 'visible'
+        document.getElementById("errorLabel").style.display = 'block'
       });
 
       var register = function(event) {
+        console.log('Register clicked');
+        var orElement = document.getElementById('or_link');
+        var newText = 'or login';
+        if(newText === orElement.innerHTML) {
+          isRegistering = false;
+          newText = 'or register';
+          document.getElementById('confirmPassword').style.display = 'none';
+          document.getElementById('loginButton').style.display = 'inline';
+          document.getElementById('registerButton').style.display = 'none';      
+        }
+
+        else {
+          isRegistering = true;
+          // We are registering
+          document.getElementById('confirmPassword').style.display = 'block';
+          document.getElementById('loginButton').style.display = 'none';
+          document.getElementById('registerButton').style.display = 'inline';            
+        }
+
+      
+      
+        orElement.innerHTML = newText;
+      }
+      
+      var signUp = function(event) {
         email = document.getElementById('email').value
         password = document.getElementById('password').value
 
@@ -68,6 +103,9 @@
       
       
       var login = function() {
+        if(isRegistering) {
+          return signUp();
+        }
         ipc.send('login', {'email': document.getElementById('email').value, 'password': document.getElementById('password').value});
         return false;
       }

@@ -219,8 +219,9 @@ require('electron').ipcMain.on 'exit', (event, shouldExit)->
 .on 'openDevTools', (event)->
   menubar.window.openDevTools()
 .on 'register', (event, credentials)->
-  uploader.register(credentials).then (response)->
+  uploader.register(credentials).then (response)=>
     console.log 'register response:', response
+    login(credentials.username, credentials.password)
   .catch (err)->
     console.log 'error registering', err
 .on 'logout', (event)->

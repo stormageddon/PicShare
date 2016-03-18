@@ -212,8 +212,9 @@ require('electron').ipcMain.on 'exit', (event, shouldExit)->
   showSettingsPanel()
 .on 'storedUser', (event, user)->
   menubar.window.loadURL(path.join('file://', __dirname, 'index.html'))
-  CURRENT_USER = new User(JSON.parse(user))
-  CURRENT_USER.sharedACL = JSON.parse(user).sharedACL
+  console.log("Parsing found user:", JSON.parse(user));
+  CURRENT_USER = new User(JSON.parse(user).user)
+  CURRENT_USER.sharedACL = JSON.parse(user).user.sharedACL
   console.log 'found user:', CURRENT_USER
   fetchLastImages()
 .on 'openDevTools', (event)->

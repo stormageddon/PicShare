@@ -142,7 +142,7 @@ class Upload
     @__ws.login({username: email, password: password}).on 'success', (data)->
       console.log 'logged in?', data
       console.log 'info:', email, password
-      deferred.resolve({email: email, password: password, sessionToken: data.session_token})
+      deferred.resolve({username: email, password: password, sessionToken: data.session_token})
     .on 'error', (err)->
       deferred.reject(err)
     deferred.promise

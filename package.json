@@ -1,6 +1,6 @@
 {
   "name": "picshare",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A screen shot sharing utility similar to dropbox or CloudApp",
   "main": "picshare.js",
   "scripts": {

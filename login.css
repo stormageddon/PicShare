@@ -32,3 +32,14 @@
 #registerButton {
     display: none;
 }
+
+#or_link {
+    text-decoration: underline;
+    color: blue;
+    float: right;
+    margin-top: 0px;
+}
+
+#or_link:hover {
+    cursor: pointer;
+}

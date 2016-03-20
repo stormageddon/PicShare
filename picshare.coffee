@@ -82,13 +82,7 @@ login = (email, password)->
     deferred.promise
 
   .fail (err)->
-    console.log 'menubar:', menubar.window.webContents
-    #menubar.window.WebContents.send('errorMessage', 'Invalid username or password')
-    console.log 'Fuck Error logging in and fetching ACLs:', err
-
     menubar.window.webContents.send('errorMessage', 'Invalid username or password')
-
-    #setLoginError()
 
 
 createFileUrl = (file)->
@@ -97,7 +91,6 @@ createFileUrl = (file)->
   getShortUrl(file.url).then (shortenedUrl)->
     clipboard.writeText(shortenedUrl)
     file.shortUrl = shortenedUrl
-
 
 
 uploadScreenshot = ->

@@ -16,7 +16,7 @@
     <div class="login-content" style="width: 100%; text-align: center;">
       <img id="logo" src="./img/picshare_logo_lg.png" width="45%" />
       <div id="errorLabel" style="display: none;">
-	<p style="color: red">Invalid username</p>
+	<p style="color: red">Invalid username or password</p>
       </div>
       <div id="login-container">
 	<form class="login-form" name="loginForm" onsubmit="return login()">
@@ -55,7 +55,7 @@
 
       ipc.on('errorMessage', function(event, errorMessage) {
         console.log("Error!", errorMessage)
-        document.getElementById("errorLabel").style.display = 'block'
+        document.getElementById("errorLabel").style.display = 'block';
       });
 
       var register = function(event) {

@@ -53,43 +53,42 @@ init = ->
   console.log 'initing'
 
 
-login = (email, password)->
-  console.log 'logging in with ' + email + ' and ' + password
-  uploader.login(email, password)
-    .then (data)->
-      console.log 'logged in as', data
-      CURRENT_USER = new User(email: data.email, password: data.password, sessionToken: data.sessionToken)
-
-      deferred = q.defer()
-      # Fetch ACLs
-      uploader.getAllACLs(data.sessionToken).then (acls)=>
-        if acls.length < 1
-          console.log 'creating an ACL'
-          uploader.createACL(CURRENT_USER.sessionToken).then (ids)=>
-            CURRENT_USER.sharedACL = ids[0]
-            fetchLastImages()
-            deferred.resolve(CURRENT_USER)
-        else
-          CURRENT_USER.sharedACL = acls[0]
-          console.log 'CURRENT_USER:', CURRENT_USER
-          fetchLastImages()
-          deferred.resolve(CURRENT_USER)
-
-        menubar.window.loadURL(path.join('file://', __dirname, 'index.html'))
-
-      deferred.promise
-
-    .catch (err)->
-      console.log 'menubar:', menubar.window
-      menubar.window.WebContents.send('errorMessage', 'Invalid username or password') if menubar.window
-      console.log 'Error logging in and fetching ACLs:', err
-
-      setLoginError()
-
-
 setLoginError = ->
   console.log 'sending error', window
 
+login = (email, password)->
+  console.log 'logging in with ' + email + ' and ' + password
+  uploader.login(email, password).then (data)->
+    console.log 'logged in as', data
+    CURRENT_USER = new User(email: data.email, password: data.password, sessionToken: data.sessionToken)
+
+    deferred = q.defer()
+    # Fetch ACLs
+    uploader.getAllACLs(data.sessionToken).then (acls)=>
+      if acls.length < 1
+        console.log 'creating an ACL'
+        uploader.createACL(CURRENT_USER.sessionToken).then (ids)=>
+          CURRENT_USER.sharedACL = ids[0]
+          fetchLastImages()
+          deferred.resolve(CURRENT_USER)
+      else
+        CURRENT_USER.sharedACL = acls[0]
+        console.log 'CURRENT_USER:', CURRENT_USER
+        fetchLastImages()
+        deferred.resolve(CURRENT_USER)
+
+      menubar.window.loadURL(path.join('file://', __dirname, 'index.html'))
+
+    deferred.promise
+
+  .fail (err)->
+    console.log 'menubar:', menubar.window.webContents
+    #menubar.window.WebContents.send('errorMessage', 'Invalid username or password')
+    console.log 'Fuck Error logging in and fetching ACLs:', err
+
+    menubar.window.webContents.send('errorMessage', 'Invalid username or password')
+
+    #setLoginError()
 
 
 createFileUrl = (file)->

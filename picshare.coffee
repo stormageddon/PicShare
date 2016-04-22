@@ -78,7 +78,7 @@ login = (email, password)->
         deferred.resolve(CURRENT_USER)
 
       menubar.window.loadURL(path.join('file://', __dirname, 'index.html'))
-
+    globalShortcut.register('Command+shift+5', takeScreenshot)
     deferred.promise
 
   .fail (err)->
@@ -239,6 +239,4 @@ require('electron').ipcMain.on 'exit', (event, shouldExit)->
   setAutoLaunch(checked)
 
 menubar.on 'ready', ->
-  globalShortcut.register('Command+shift+5', takeScreenshot)
-
   this

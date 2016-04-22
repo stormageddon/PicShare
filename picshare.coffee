@@ -60,7 +60,7 @@ login = (email, password)->
   console.log 'logging in with ' + email + ' and ' + password
   uploader.login(email, password).then (data)->
     console.log 'logged in as', data
-    CURRENT_USER = new User(email: data.email, password: data.password, sessionToken: data.sessionToken)
+    CURRENT_USER = new User(username: data.username, password: data.password, sessionToken: data.sessionToken)
 
     deferred = q.defer()
     # Fetch ACLs
@@ -199,6 +199,7 @@ require('electron').ipcMain.on 'exit', (event, shouldExit)->
 .on 'login', (event, credentials)->
   console.log 'credentials:', credentials
   login(credentials.email, credentials.password)
+
 .on 'openSettings', (event)->
   #menubar.window.openDevTools()
   showSettingsPanel()

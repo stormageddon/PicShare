@@ -53,12 +53,13 @@
         ipc.send('openSettings');
       }
 
-      ipc.on('authedUser', function(event, user) {
-        delete user.password // Don't store password
-        console.log('user to save:', user);
+      ipc.on('authedUser', function(event, data) {
+        console.log('user to save 1:', data.user);      
+        delete data.user.password // Don't store password
+        console.log('user to save 2:', data.user);
         potentialUser = localStorage.getItem('user');
         if(!potentialUser) {
-          localStorage.setItem('user', JSON.stringify(user));
+          localStorage.setItem('user', JSON.stringify(data));
         }
         console.log("Local storage:", localStorage);
 

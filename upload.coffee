@@ -42,9 +42,11 @@ class Upload
   download: (file, user)->
     deferred = q.defer()
     opts = {session_token: user.sessionToken}
+    opts.filename = file.filename
     console.log 'file:', file
     console.log 'user:', user
-    @__ws.download(file, opts).on 'success', (data)->
+
+    @__ws.download(file['__id__'], opts).on 'success', (data)->
       console.log 'downloaded:', data
       deferred.resolve(data)
     .on 'error', (err)->

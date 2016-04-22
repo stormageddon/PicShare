@@ -1,0 +1,6 @@
+{
+  "app_id": <CLOUDMINE_APP_ID>,
+  "api_key":<CLOUDMINE_API_KEY_WITH_READ_WRITE>,
+  "api_root":"https://api.secure.cloudmine.me",
+  "autolaunch":false
+}

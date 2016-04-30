@@ -13,6 +13,15 @@ Alternatively, PicShare supports configuration via environment variable. You can
 # Building
 There is currently an issue with building the app into a .asar file and keeping the desktop notifications working. The easiest way to build and get notifications is to use `make build-dev`. 
 
+## Build release
+1. Remove the `dist/` folder from the root directory
+2. run `asar pack . app.asar --unpack "./node_modules/node-notifier/vender/**"
+3. Move the `app.asar` and `app.asar.unpacked` files out of the root directory
+4. Run `make build-mac`
+5. Replace `./dist/PicShare.app/Content/Resources/app.asar` with the `asar` package you generated.
+6. Move the `app.asar.unpacked` file you generated to the same Resources folder
+7. The `PicShare.app` file can now be zipped up and released.
+
 # Running in development mode
 1. `npm install`
 2. `make run`

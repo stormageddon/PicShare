@@ -19,6 +19,9 @@ Upload = require('./upload.js')
 User = require('./user.js')
 config = require('./config.json')
 
+# Constants
+KEYBOARD_COMMAND = "Command+shift+5"
+
 CURRENT_USER = null
 
 APP_ID = if config.app_id then config.app_id else process.env.APPID
@@ -32,9 +35,7 @@ picshareAutoLauncher = new AutoLaunch({
 })
 
 setAutoLaunch = (enable)->
-  console.log 'enable autolaunch:', enable
   config.autolaunch = enable
-  console.log 'config:', config
   configPath = path.join(__dirname, 'config.json')
   fs.writeFile(configPath, JSON.stringify(config), (err)->
     return console.log 'error writing config file' if err
@@ -49,36 +50,29 @@ uploader = new Upload({
   apiRoot: API_ROOT
 })
 
-init = ->
-  console.log 'initing'
-
-
 setLoginError = ->
   console.log 'sending error', window
+  this
 
 login = (email, password)->
-  console.log 'logging in with ' + email + ' and ' + password
   uploader.login(email, password).then (data)->
-    console.log 'logged in as', data
     CURRENT_USER = new User(username: data.username, password: data.password, sessionToken: data.sessionToken)
 
     deferred = q.defer()
     # Fetch ACLs
     uploader.getAllACLs(data.sessionToken).then (acls)=>
       if acls.length < 1
-        console.log 'creating an ACL'
         uploader.createACL(CURRENT_USER.sessionToken).then (ids)=>
           CURRENT_USER.sharedACL = ids[0]
           fetchLastImages()
           deferred.resolve(CURRENT_USER)
       else
         CURRENT_USER.sharedACL = acls[0]
-        console.log 'CURRENT_USER:', CURRENT_USER
         fetchLastImages()
         deferred.resolve(CURRENT_USER)
 
       menubar.window.loadURL(path.join('file://', __dirname, 'index.html'))
-    globalShortcut.register('Command+shift+5', takeScreenshot)
+    globalShortcut.register(KEYBOARD_COMMAND, takeScreenshot)
     deferred.promise
 
   .fail (err)->
@@ -121,19 +115,11 @@ uploadScreenshot = ->
           fs.unlink(path.join(tmpDir, "electron_pic.png"))
         .catch (err)->
           error = (val for key, val of err)
-          console.log 'failed to get an acl:', error[0]
-          console.log 'err:', err
 
     else
       console.log path.join(tmpDir, "electron_pic.png") + "doesnt exist"
 
 notify = (title, message)->
-  console.log 'notifying 1'
-  #Notification.requestPermission();
-  #console.log 'notifying 2'
-  #Notification(title, { body: message, icon: 'img/icon.png' });
-  #console.log 'notifying 3'
-  #ipc.send('notify', {title: title, body: message, icon: 'img/cloud_icon.png'})
   notifier.notify({
     title: title
     message: message
@@ -153,6 +139,7 @@ fetchLastImages = ->
     sendContent(menubar.window)
   .catch (err)->
     console.log 'error fetching previous images', err
+    notify('Something went wrong', 'There was an error fetching your previous images')
 
 close = ->
   app.close()
@@ -161,7 +148,6 @@ menubar.on 'show', ->
   sendContent(menubar.window)
 
 sendContent = (window)->
-  console.log("Sending content");
   window.webContents.send('pictures', {images: lastImages, root: API_ROOT, apikey: API_KEY, appid: APP_ID, version: pkg.version, autolaunch: config.autolaunch}) if window?.webContents
 
   data =
@@ -170,7 +156,6 @@ sendContent = (window)->
   window.webContents.send('authedUser', data) if window?.webContents and CURRENT_USER?.sessionToken
 
 showSettingsPanel = ->
-  console.log 'showing settings menu'
   menubar.window.webContents.send 'contextMenu'
 
 menubar.on('after-create-window', ->
@@ -197,46 +182,40 @@ require('electron').ipcMain.on 'exit', (event, shouldExit)->
   getShortUrl(url).then (shortenedUrl)->
     clipboard.writeText(shortenedUrl)
 .on 'login', (event, credentials)->
-  console.log 'credentials:', credentials
   login(credentials.email, credentials.password)
 
 .on 'openSettings', (event)->
-  #menubar.window.openDevTools()
   showSettingsPanel()
 .on 'storedUser', (event, user)->
   menubar.window.loadURL(path.join('file://', __dirname, 'index.html'))
-  console.log("Parsing found user:", JSON.parse(user));
   CURRENT_USER = new User(JSON.parse(user).user)
   CURRENT_USER.sharedACL = JSON.parse(user).user.sharedACL
-  console.log 'found user:', CURRENT_USER
+  globalShortcut.register(KEYBOARD_COMMAND, takeScreenshot)
   fetchLastImages()
 .on 'openDevTools', (event)->
   menubar.window.openDevTools()
 .on 'register', (event, credentials)->
   uploader.register(credentials).then (response)=>
-    console.log 'register response:', response
     login(credentials.username, credentials.password)
   .catch (err)->
     console.log 'error registering', err
+    this
 .on 'logout', (event)->
-  console.log 'CURRENT USER TO LOG OUT:', CURRENT_USER
   uploader.logout(CURRENT_USER.sessionToken).then ->
+    globalShortcut.unregisterAll()
     menubar.window.loadURL(path.join('file://', __dirname, 'login.html'))
 .on 'quit', (event)->
+  globalShortcut.unregisterAll()
   menubar.app.quit()
 .on 'copyFile', (event, file)->
-  console.log 'Copy file link:', file
   createFileUrl(JSON.parse(file))
   notify('Your link is available for sharing!', 'Use \u2318+v to send it!')
 .on 'downloadFile', (event, file)->
   uploader.download(file, CURRENT_USER).then ->
-    console.log 'Download success!'
 .on 'deleteFile', (event, file)->
   uploader.deleteFile(JSON.parse(file), CURRENT_USER).then (data)->
-    console.log 'Deleted file', data
     fetchLastImages()
 .on 'toggleCheck', (event, checked)->
-  console.log 'toggling check:', checked
   setAutoLaunch(checked)
 
 menubar.on 'ready', ->

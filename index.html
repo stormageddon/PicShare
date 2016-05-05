@@ -67,22 +67,27 @@
       }).on('pictures', function(event, message) {
         autoLaunchMenuItem.checked = message.autolaunch
         var photoHTML = "";
-        for(var i = 0; i < message.images.length; i++) {
-          var link = message.root + "/v1/app/" + message.appid + "/user/binary/" + message.images[i].filename + "?apikey=" + message.apikey + "&shared=true";
-          photoHTML += "<li class='table-row'>";
-	  photoHTML += "<div class='img-container'>";
-          photoHTML += "<img class='thumbnail' src='" + link + "' />";
-	  photoHTML += "</div>";
-          photoHTML += "<span class='filename'>";
-          photoHTML += message.images[i].filename;
-	  photoHTML += "</span>"
-	  photoHTML += "<i class='fa fa-ellipsis-v fa-2x file-menu-button' onclick=showFileMenu('" + JSON.stringify(message.images[i]) + "')></i><br>";
-          photoHTML += "<p class='date-added'>added ";
-          photoHTML += moment(message.images[i]['__created__']).from(moment());
-          photoHTML += "</p>";
-          photoHTML += "</li>";
+        if (message.images.length === 0) {
+          document.getElementById("photoList").innerHTML = "<p id='no-images-text'>\u2318+shift+5 to take your first screen shot!</p>";
         }
-        document.getElementById("photoList").innerHTML = photoHTML;
+        else {
+          for(var i = 0; i < message.images.length; i++) {
+            var link = message.root + "/v1/app/" + message.appid + "/user/binary/" + message.images[i].filename + "?apikey=" + message.apikey + "&shared=true";
+            photoHTML += "<li class='table-row'>";
+            photoHTML += "<div class='img-container'>";
+            photoHTML += "<img class='thumbnail' src='" + link + "' />";
+	    photoHTML += "</div>";
+            photoHTML += "<span class='filename'>";
+            photoHTML += message.images[i].filename;
+	    photoHTML += "</span>"
+	    photoHTML += "<i class='fa fa-ellipsis-v fa-2x file-menu-button' onclick=showFileMenu('" + JSON.stringify(message.images[i]) + "')></i><br>";
+            photoHTML += "<p class='date-added'>added ";
+            photoHTML += moment(message.images[i]['__created__']).from(moment());
+            photoHTML += "</p>";
+            photoHTML += "</li>";
+          }
+	  document.getElementById("photoList").innerHTML = photoHTML;
+	}
         document.getElementById("version").innerHTML = "v" + message.version;
         console.log('message:' + message);	   
 			   

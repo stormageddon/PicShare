@@ -129,4 +129,8 @@ p#version {
     margin: 0px;
     color: 7F7F7F;    
 }
-		     
+
+#no-images-text {
+    color: gray;
+    text-align: center;
+}

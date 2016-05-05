@@ -54,16 +54,11 @@
       }
 
       ipc.on('authedUser', function(event, data) {
-        console.log('user to save 1:', data.user);      
         delete data.user.password // Don't store password
-        console.log('user to save 2:', data.user);
         potentialUser = localStorage.getItem('user');
         if(!potentialUser) {
           localStorage.setItem('user', JSON.stringify(data));
         }
-        console.log("Local storage:", localStorage);
-
-      
       }).on('pictures', function(event, message) {
         autoLaunchMenuItem.checked = message.autolaunch
         var photoHTML = "";
@@ -89,8 +84,6 @@
 	  document.getElementById("photoList").innerHTML = photoHTML;
 	}
         document.getElementById("version").innerHTML = "v" + message.version;
-        console.log('message:' + message);	   
-			   
       });
 
       remote = require('electron').remote;
@@ -99,21 +92,15 @@
 
 
       var showFileMenu = function(file) {
-        console.log("Performing operation on", file);
-
-			   
         fileMenu = new Menu();
         fileMenu.append(new MenuItem({ label: 'Copy Link', click: function() { ipc.send('copyFile', file); } }));
-        fileMenu.append(new MenuItem({ label: 'Download', click: function() { ipc.send('downloadFile', file); } }));
+        //fileMenu.append(new MenuItem({ label: 'Download', click: function() { ipc.send('downloadFile', file); } }));
         fileMenu.append(new MenuItem({ label: 'Delete', click: function() { ipc.send('deleteFile', file); } }));			   
         fileMenu.popup();
       }
 
 
-			   
-
       var checkboxClicked = function() {
-        console.log("autolaunch:", autoLaunchMenuItem.checked);
         ipc.send('toggleCheck', autoLaunchMenuItem.checked);			   
       }
 
@@ -128,10 +115,8 @@
 
       menu.append(new MenuItem({ type: 'separator' }));
       menu.append(new MenuItem({ label: 'Quit', click: function() { ipc.send('quit'); } }));			   
-
 			   
       ipc.on('contextMenu', function(event) {
-        console.log("CONTEXT MENU");		   
         menu.popup();
       });
 
@@ -139,8 +124,6 @@
         Notification.requestPermission();
         Notification(notification.title, { body: notification.body, icon: notification.icon });
       });
-
-			   
     </script>
   </body>
 </html>

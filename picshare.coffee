@@ -16,7 +16,9 @@ bitcly = require('bitcly')
 File = require('./file.js')
 tmpDir = '/tmp'
 Upload = require('./upload.js')
+S3Upload = require('./s3_upload.js')
 User = require('./user.js')
+UserService = require('./user_service.js')
 config = require('./config.json')
 
 # Constants
@@ -43,36 +45,38 @@ setAutoLaunch = (enable)->
     picshareAutoLauncher.disable();
   )
 
-
 uploader = new Upload({
   appId: APP_ID
   apiKey: API_KEY
   apiRoot: API_ROOT
 })
 
+s3Uploader = new S3Upload()
+
 setLoginError = ->
   console.log 'sending error', window
   this
 
 login = (email, password)->
-  uploader.login(email, password).then (data)->
+  UserService.login(email, password).then (data)->
     CURRENT_USER = new User(username: data.username, password: data.password, sessionToken: data.sessionToken)
-
+    console.log 'CURRENT_USER:', CURRENT_USER
     deferred = q.defer()
     # Fetch ACLs
-    uploader.getAllACLs(data.sessionToken).then (acls)=>
-      if acls.length < 1
-        uploader.createACL(CURRENT_USER.sessionToken).then (ids)=>
-          CURRENT_USER.sharedACL = ids[0]
-          fetchLastImages()
-          deferred.resolve(CURRENT_USER)
-      else
-        CURRENT_USER.sharedACL = acls[0]
-        fetchLastImages()
-        deferred.resolve(CURRENT_USER)
+    # uploader.getAllACLs(data.sessionToken).then (acls)=>
+    #   if acls.length < 1
+    #     uploader.createACL(CURRENT_USER.sessionToken).then (ids)=>
+    #       CURRENT_USER.sharedACL = ids[0]
+    #       fetchLastImages()
+    #       deferred.resolve(CURRENT_USER)
+    #   else
+    #     CURRENT_USER.sharedACL = acls[0]
+    #     fetchLastImages()
+    #     deferred.resolve(CURRENT_USER)
 
-      menubar.window.loadURL(path.join('file://', __dirname, 'index.html'))
+    menubar.window.loadURL(path.join('file://', __dirname, 'index.html'))
     globalShortcut.register(KEYBOARD_COMMAND, takeScreenshot)
+    deferred.resolve(CURRENT_USER)
     deferred.promise
 
   .fail (err)->
@@ -95,26 +99,28 @@ uploadScreenshot = ->
         path: path.join(tmpDir, "electron_pic.png")
       })
 
-      uploader.upload(file, CURRENT_USER, API_KEY) # return promise
-      .then (file)->
-        uploader.addACL(file, CURRENT_USER).then (result)->
-          file.url = "#{API_ROOT}/v1/app/#{APP_ID}/user/binary/#{file.key}?apikey=#{API_KEY}&shared=true"
+      # uploader.upload(file, CURRENT_USER, API_KEY) # return promise
+      # .then (file)->
+      #   uploader.addACL(file, CURRENT_USER).then (result)->
+      #     file.url = "#{API_ROOT}/v1/app/#{APP_ID}/user/binary/#{file.key}?apikey=#{API_KEY}&shared=true"
 
-          getShortUrl(file.url).then (shortenedUrl)->
-            clipboard.writeText(shortenedUrl)
-            file.shortUrl = shortenedUrl
+      #     getShortUrl(file.url).then (shortenedUrl)->
+      #       clipboard.writeText(shortenedUrl)
+      #       file.shortUrl = shortenedUrl
 
-            notify('Your link is available for sharing!', 'Use \u2318+v to send it!')
+      #       notify('Your link is available for sharing!', 'Use \u2318+v to send it!')
 
-            fetchLastImages()
+      #       fetchLastImages()
 
-          .catch (err)->
-            notify("Something's gone wrong", 'There was an error processing your request')
-            console.log 'err', err
+      #     .catch (err)->
+      #       notify("Something's gone wrong", 'There was an error processing your request')
+      #       console.log 'err', err
 
-          fs.unlink(path.join(tmpDir, "electron_pic.png"))
-        .catch (err)->
-          error = (val for key, val of err)
+      #     fs.unlink(path.join(tmpDir, "electron_pic.png"))
+      #   .catch (err)->
+      #     error = (val for key, val of err)
+
+      s3Uploader.upload(file, CURRENT_USER, API_KEY)
 
     else
       console.log path.join(tmpDir, "electron_pic.png") + "doesnt exist"
@@ -195,7 +201,7 @@ require('electron').ipcMain.on 'exit', (event, shouldExit)->
 .on 'openDevTools', (event)->
   menubar.window.openDevTools()
 .on 'register', (event, credentials)->
-  uploader.register(credentials).then (response)=>
+  UserService.register(credentials).then (response)=>
     login(credentials.username, credentials.password)
   .catch (err)->
     console.log 'error registering', err

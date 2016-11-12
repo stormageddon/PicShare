@@ -94,6 +94,7 @@ createFileUrl = (file)->
 
 
 uploadScreenshot = ->
+  deferred = q.defer()
   fs.exists path.join(tmpDir, "electron_pic.png"), (exists)->
     if exists
 
@@ -127,14 +128,18 @@ uploadScreenshot = ->
         # FileService.save(CURRENT_USER.username, file)
         console.log 'Save now'
         imgUrl = "https://s3-us-west-2.amazonaws.com/picshario/#{fileKey}"
-        FileService.save(CURRENT_USER.username, imgUrl)
         clipboard.writeText(imgUrl)
-
         notify('Your link is available for sharing!', 'Use \u2318+v to send it!')
-      
+        
+        FileService.save(CURRENT_USER.username, imgUrl).then ->
+          console.log 'File saved'
+          deferred.resolve()
 
     else
       console.log path.join(tmpDir, "electron_pic.png") + "doesnt exist"
+      deferred.reject()
+
+  deferred.promise
 
 notify = (title, message)->
   notifier.notify({
@@ -145,12 +150,14 @@ notify = (title, message)->
 
 takeScreenshot = ->
   shelljs.exec "screencapture -i /tmp/electron_pic.png", ->
-    uploadScreenshot()
-    fetchLastImages()
+    uploadScreenshot().then ->
+      console.log 'finished uploading, now fetch last images'
+      fetchLastImages()
 
 lastImages = {}
 
 fetchLastImages = ->
+  console.log 'fetching last images'
   s3Uploader.getRecentFiles(CURRENT_USER).then (files)->
         console.log 'got last files:', files[0]
         lastImages = (file.file_id for file in files)

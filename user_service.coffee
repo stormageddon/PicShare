@@ -32,6 +32,15 @@ class UserService
 
     deferred.promise
 
+  @logout: (user)->
+    deferred = Q.defer()
+    request.post 'http://localhost:5001/logout',
+    { json: {sessionToken: user.sessionToken, username: user.username} },
+    (error, response, body)->
+      return deferred.resolve(body) unless error
+      deferred.reject(error)
+
+    deferred.promise
 
   getCurrentUser: ->
     return CURRENT_USER

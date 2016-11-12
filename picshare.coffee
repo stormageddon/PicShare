@@ -233,9 +233,12 @@ require('electron').ipcMain.on 'exit', (event, shouldExit)->
     console.log 'error registering', err
     this
 .on 'logout', (event)->
-  uploader.logout(CURRENT_USER.sessionToken).then ->
+  UserService.logout(CURRENT_USER).then ->
     globalShortcut.unregisterAll()
     menubar.window.loadURL(path.join('file://', __dirname, 'login.html'))
+  # uploader.logout(CURRENT_USER.sessionToken).then ->
+  #   globalShortcut.unregisterAll()
+  #   menubar.window.loadURL(path.join('file://', __dirname, 'login.html'))
 .on 'quit', (event)->
   globalShortcut.unregisterAll()
   menubar.app.quit()

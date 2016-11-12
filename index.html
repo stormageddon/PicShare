@@ -67,17 +67,17 @@
         }
         else {
           for(var i = 0; i < message.images.length; i++) {
-            var link = message.root + "/v1/app/" + message.appid + "/user/binary/" + message.images[i].filename + "?apikey=" + message.apikey + "&shared=true";
+           var link = message.images[i];
             photoHTML += "<li class='table-row'>";
             photoHTML += "<div class='img-container'>";
             photoHTML += "<img class='thumbnail' src='" + link + "' />";
 	    photoHTML += "</div>";
             photoHTML += "<span class='filename'>";
-            photoHTML += message.images[i].filename;
-	    photoHTML += "</span>"
-	    photoHTML += "<i class='fa fa-ellipsis-v fa-2x file-menu-button' onclick=showFileMenu('" + JSON.stringify(message.images[i]) + "')></i><br>";
+            photoHTML += "file name";
+	    photoHTML += "</span>";
+	    photoHTML += "<i class='fa fa-ellipsis-v fa-2x file-menu-button' onclick=showFileMenu('" + link + "')></i><br>";
             photoHTML += "<p class='date-added'>added ";
-            photoHTML += moment(message.images[i]['__created__']).from(moment());
+            photoHTML += "GET DATE";
             photoHTML += "</p>";
             photoHTML += "</li>";
           }

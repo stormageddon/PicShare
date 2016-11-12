@@ -75,7 +75,7 @@ login = (email, password)->
     #     fetchLastImages()
     #     deferred.resolve(CURRENT_USER)
 
-
+    fetchLastImages()
     menubar.window.loadURL(path.join('file://', __dirname, 'index.html'))
     globalShortcut.register(KEYBOARD_COMMAND, takeScreenshot)
     deferred.resolve(CURRENT_USER)
@@ -152,7 +152,8 @@ lastImages = {}
 
 fetchLastImages = ->
   s3Uploader.getRecentFiles(CURRENT_USER).then (files)->
-        lastImages = files
+        console.log 'got last files:', files[0]
+        lastImages = (file.file_id for file in files)
         sendContent(menubar.window)
   .catch (err)->
         notify('Something went wrong', 'There was an error fetching your previous images');
@@ -171,6 +172,7 @@ menubar.on 'show', ->
   sendContent(menubar.window)
 
 sendContent = (window)->
+  console.log 'sending lastImages:', lastImages
   window.webContents.send('pictures', {images: lastImages, root: API_ROOT, apikey: API_KEY, appid: APP_ID, version: pkg.version, autolaunch: config.autolaunch}) if window?.webContents
 
   data =
@@ -230,8 +232,9 @@ require('electron').ipcMain.on 'exit', (event, shouldExit)->
 .on 'quit', (event)->
   globalShortcut.unregisterAll()
   menubar.app.quit()
-.on 'copyFile', (event, file)->
-  createFileUrl(JSON.parse(file))
+.on 'copyFile', (event, fileUrl)->
+  #createFileUrl(JSON.parse(file))
+  clipboard.writeText(fileUrl)
   notify('Your link is available for sharing!', 'Use \u2318+v to send it!')
 .on 'downloadFile', (event, file)->
   uploader.download(file, CURRENT_USER).then ->

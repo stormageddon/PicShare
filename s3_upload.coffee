@@ -43,11 +43,12 @@ class S3Upload
 
   _getFileURLs: (user)->
     deferred = Q.defer()
+    console.log 'getting images for user', user
     queryString = { username: user.username, sessionToken: user.sessionToken }
     request.get({url: "http://localhost:5001/files", qs: queryString }, (error, response, body)->
         deferred.reject(error) if error
         console.log 'body:', body
-        deferred.resolve(body)
+        deferred.resolve(JSON.parse(body))
     )
     return deferred.promise
 

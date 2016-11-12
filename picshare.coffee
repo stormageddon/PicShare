@@ -19,6 +19,7 @@ Upload = require('./upload.js')
 S3Upload = require('./s3_upload.js')
 User = require('./user.js')
 UserService = require('./user_service.js')
+FileService = require('./file_service.js')
 config = require('./config.json')
 
 # Constants
@@ -59,7 +60,7 @@ setLoginError = ->
 
 login = (email, password)->
   UserService.login(email, password).then (data)->
-    CURRENT_USER = new User(username: data.username, password: data.password, sessionToken: data.sessionToken)
+    CURRENT_USER = new User(username: data.username, sessionToken: data.sessionToken)
     console.log 'CURRENT_USER:', CURRENT_USER
     deferred = q.defer()
     # Fetch ACLs
@@ -73,6 +74,7 @@ login = (email, password)->
     #     CURRENT_USER.sharedACL = acls[0]
     #     fetchLastImages()
     #     deferred.resolve(CURRENT_USER)
+
 
     menubar.window.loadURL(path.join('file://', __dirname, 'index.html'))
     globalShortcut.register(KEYBOARD_COMMAND, takeScreenshot)
@@ -120,7 +122,16 @@ uploadScreenshot = ->
       #   .catch (err)->
       #     error = (val for key, val of err)
 
-      s3Uploader.upload(file, CURRENT_USER, API_KEY)
+      s3Uploader.upload(file, CURRENT_USER, API_KEY).then (fileKey)->
+        # Once file is uploaded, save the id for future reference
+        # FileService.save(CURRENT_USER.username, file)
+        console.log 'Save now'
+        imgUrl = "https://s3-us-west-2.amazonaws.com/picshario/#{fileKey}"
+        FileService.save(CURRENT_USER.username, imgUrl)
+        clipboard.writeText(imgUrl)
+
+        notify('Your link is available for sharing!', 'Use \u2318+v to send it!')
+      
 
     else
       console.log path.join(tmpDir, "electron_pic.png") + "doesnt exist"
@@ -140,12 +151,18 @@ takeScreenshot = ->
 lastImages = {}
 
 fetchLastImages = ->
-  uploader.getRecentFiles(CURRENT_USER.sessionToken).then (files)->
-    lastImages = files
-    sendContent(menubar.window)
+  s3Uploader.getRecentFiles(CURRENT_USER).then (files)->
+        lastImages = files
+        sendContent(menubar.window)
   .catch (err)->
-    console.log 'error fetching previous images', err
-    notify('Something went wrong', 'There was an error fetching your previous images')
+        notify('Something went wrong', 'There was an error fetching your previous images');
+        
+  # uploader.getRecentFiles(CURRENT_USER.sessionToken).then (files)->
+  #   lastImages = files
+  #   sendContent(menubar.window)
+  # .catch (err)->
+  #   console.log 'error fetching previous images', err
+  #   notify('Something went wrong', 'There was an error fetching your previous images')
 
 close = ->
   app.close()

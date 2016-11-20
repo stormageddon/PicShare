@@ -3,7 +3,7 @@ path = require('path')
 electron = require('electron')
 app = electron.app
 BrowserWindow = electron.BrowserWindow
-menubar = require('menubar')({ dir: __dirname, index: 'file://' + path.join(__dirname, 'login.html'), icon: path.join(__dirname, 'img/picshare_logo.png'), resizable: no, preloadWindow: yes })
+menubar = require('menubar')({ dir: __dirname, index: 'file://' + path.join(__dirname, 'login.html'), icon: path.join(__dirname, 'img/picshare_logo.png'), resizable: yes, preloadWindow: yes })
 Tray = electron.Tray
 Menu = electron.Menu
 globalShortcut = electron.globalShortcut
@@ -130,8 +130,9 @@ uploadScreenshot = ->
         imgUrl = "https://s3-us-west-2.amazonaws.com/picshario/#{fileKey}"
         clipboard.writeText(imgUrl)
         notify('Your link is available for sharing!', 'Use \u2318+v to send it!')
-        
-        FileService.save(CURRENT_USER.username, imgUrl).then ->
+        fileName = "screenshot-#{Date.now()}"
+
+        FileService.save(CURRENT_USER.username, imgUrl, fileName).then ->
           console.log 'File saved'
           deferred.resolve()
 
@@ -160,11 +161,11 @@ fetchLastImages = ->
   console.log 'fetching last images'
   s3Uploader.getRecentFiles(CURRENT_USER).then (files)->
         console.log 'got last files:', files[0]
-        lastImages = (file.file_id for file in files)
+        lastImages = files #(file.file_id for file in files)
         sendContent(menubar.window)
   .catch (err)->
         notify('Something went wrong', 'There was an error fetching your previous images');
-        
+
   # uploader.getRecentFiles(CURRENT_USER.sessionToken).then (files)->
   #   lastImages = files
   #   sendContent(menubar.window)

@@ -7,10 +7,10 @@ class FileService
   constructor: (opts)->
     this
 
-  @save: (username, fileUrl)->
+  @save: (username, fileUrl, fileName)->
     deferred = Q.defer()
     request.post 'http://localhost:5001/files',
-    { json: {username: username, image_url: fileUrl} },
+    { json: {username: username, image_url: fileUrl, image_name: fileName, timestamp: new Date().toISOString() } },
     (error, response, body)->
         console.log 'error:', error
         console.log 'body:', body
@@ -19,4 +19,4 @@ class FileService
 
     deferred.promise
 
-  module.exports = FileService                                                                                                                                                
+  module.exports = FileService

@@ -19,4 +19,16 @@ class FileService
 
     deferred.promise
 
+  @deleteFile: (sessionToken, fileId, fileUrl)->
+    deferred = Q.defer()
+    console.log "file id: #{fileId}"
+    console.log "file url: #{fileUrl}"
+    request.delete "http://localhost:5001/files/#{fileId}",
+    { json: {sessionToken: sessionToken, fileUrl: fileUrl} },
+    (error, response, body)->
+      return deferred.reject(error) if error
+      return deferred.resolve(body)
+
+    deferred.promise
+
   module.exports = FileService

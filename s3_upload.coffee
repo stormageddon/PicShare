@@ -23,7 +23,7 @@ class S3Upload
         Key: util.uuid()
         ACL: 'public-read'
     }
-        
+
     upload = @client.uploadFile(params)
     upload.on 'error', (err)->
       console.error 'unable to upload:', err.stack
@@ -51,5 +51,7 @@ class S3Upload
         deferred.resolve(JSON.parse(body))
     )
     return deferred.promise
+
+
 
   module.exports = S3Upload

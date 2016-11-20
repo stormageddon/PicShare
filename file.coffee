@@ -5,6 +5,7 @@ class File
       @url
       @shortenedUrl
       @name
+      @id
     } = opts
 
     @contentType = 'image/png'

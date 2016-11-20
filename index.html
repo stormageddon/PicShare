@@ -75,7 +75,7 @@
             photoHTML += "<span class='filename'>";
             photoHTML += message.images[i].image_name;
 	    photoHTML += "</span>";
-	    photoHTML += "<i class='fa fa-ellipsis-v fa-2x file-menu-button' onclick=showFileMenu('" + link + "')></i><br>";
+	    photoHTML += "<i class='fa fa-ellipsis-v fa-2x file-menu-button' onclick=showFileMenu('" + JSON.stringify(message.images[i]) + "')></i><br>";
             photoHTML += "<p class='date-added'>added ";
             photoHTML += moment(message.images[i].created_date).from(moment());
             photoHTML += "</p>";
@@ -92,10 +92,11 @@
 
 
       var showFileMenu = function(file) {
+        file = JSON.parse(file);
         fileMenu = new Menu();
-        fileMenu.append(new MenuItem({ label: 'Copy Link', click: function() { ipc.send('copyFile', file); } }));
-        //fileMenu.append(new MenuItem({ label: 'Download', click: function() { ipc.send('downloadFile', file); } }));
-        fileMenu.append(new MenuItem({ label: 'Delete', click: function() { ipc.send('deleteFile', file); } }));			   
+        fileMenu.append(new MenuItem({ label: 'Copy Link', click: function() { ipc.send('copyFile', file.file_id); } }));
+        //fileMenu.append(new MenuItem({ label: 'Download', click: function() { ipc.send('downloadFile', file.file_id); } }));
+        fileMenu.append(new MenuItem({ label: 'Delete', click: function() { ipc.send('deleteFile', {fileId: file.id, fileUrl: file.file_id}); } }));			   
         fileMenu.popup();
       }
 

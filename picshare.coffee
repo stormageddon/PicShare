@@ -250,7 +250,9 @@ require('electron').ipcMain.on 'exit', (event, shouldExit)->
 .on 'downloadFile', (event, file)->
   uploader.download(file, CURRENT_USER).then ->
 .on 'deleteFile', (event, file)->
-  uploader.deleteFile(JSON.parse(file), CURRENT_USER).then (data)->
+  console.log 'deleting file', file
+  FileService.deleteFile(CURRENT_USER.sessionToken, file.fileId, file.fileUrl).then (data)->
+    console.log 'deleted!'
     fetchLastImages()
 .on 'toggleCheck', (event, checked)->
   setAutoLaunch(checked)

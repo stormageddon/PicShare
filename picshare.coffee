@@ -3,7 +3,7 @@ path = require('path')
 electron = require('electron')
 app = electron.app
 BrowserWindow = electron.BrowserWindow
-menubar = require('menubar')({ dir: __dirname, index: 'file://' + path.join(__dirname, 'login.html'), icon: path.join(__dirname, 'img/picshare_logo.png'), resizable: yes, preloadWindow: yes })
+menubar = require('menubar')({ dir: __dirname, index: 'file://' + path.join(__dirname, 'login.html'), icon: path.join(__dirname, 'img/picshare_logo.png'), resizable: no, preloadWindow: yes })
 Tray = electron.Tray
 Menu = electron.Menu
 globalShortcut = electron.globalShortcut
@@ -237,20 +237,15 @@ require('electron').ipcMain.on 'exit', (event, shouldExit)->
   UserService.logout(CURRENT_USER).then ->
     globalShortcut.unregisterAll()
     menubar.window.loadURL(path.join('file://', __dirname, 'login.html'))
-  # uploader.logout(CURRENT_USER.sessionToken).then ->
-  #   globalShortcut.unregisterAll()
-  #   menubar.window.loadURL(path.join('file://', __dirname, 'login.html'))
 .on 'quit', (event)->
   globalShortcut.unregisterAll()
   menubar.app.quit()
 .on 'copyFile', (event, fileUrl)->
-  #createFileUrl(JSON.parse(file))
   clipboard.writeText(fileUrl)
   notify('Your link is available for sharing!', 'Use \u2318+v to send it!')
 .on 'downloadFile', (event, file)->
   uploader.download(file, CURRENT_USER).then ->
 .on 'deleteFile', (event, file)->
-  console.log 'deleting file', file
   FileService.deleteFile(CURRENT_USER.sessionToken, file.fileId, file.fileUrl).then (data)->
     console.log 'deleted!'
     fetchLastImages()

@@ -2,7 +2,9 @@ s3 = require 's3'
 request = require 'request'
 util = require './util.js'
 Q = require 'q'
+config = require './config.json'
 
+PICSHARIO_URL = config.picshario_url or process.env.picshario_url
 
 class S3Upload
   constructor: (opts)->
@@ -45,7 +47,7 @@ class S3Upload
     deferred = Q.defer()
     console.log 'getting images for user', user
     queryString = { username: user.username, sessionToken: user.sessionToken }
-    request.get({url: "http://localhost:5001/files", qs: queryString }, (error, response, body)->
+    request.get({url: "#{PICSHARIO_URL}/files", qs: queryString }, (error, response, body)->
         deferred.reject(error) if error
         console.log 'body:', body
         deferred.resolve(JSON.parse(body))
